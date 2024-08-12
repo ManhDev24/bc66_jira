@@ -1,3 +1,63 @@
-export const PATH = {
-  HOME: '/',
+import { Navigate, Outlet, useRoutes } from 'react-router-dom'
+import { PATH } from './path'
+import { Login } from '../modules/Auth/Login'
+import { useAppSelector } from '../Redux/hook'
+import { AuthenLayout } from '../Layout/AuthemLayout'
+import { Register } from '../modules/Auth/Register'
+import HomePage from '../modules/Home/HomePage'
+
+const RejectedRoutes = () => {
+  const { currentUser } = useAppSelector((state) => state.user)
+  if (currentUser !== null) {
+    return <Navigate to={PATH.HOME} />
+  }
+  return <Outlet />
 }
+
+const ProtectedRoutes = () => {
+  const { currentUser } = useAppSelector((state) => state.user)
+  if (currentUser === null) {
+    return <Navigate to={PATH.LOGIN} />
+  }
+  return <Outlet />
+}
+
+const useRoutesElement = () => {
+  const routes = useRoutes([
+    {
+      path: '/',
+      element: <ProtectedRoutes />,
+      children: [
+        {
+          path: PATH.HOME,
+          element: <HomePage />,
+        },
+      ],
+    },
+    {
+      path: 'auth',
+      element: <RejectedRoutes />,
+      children: [
+        {
+          path: PATH.LOGIN,
+          element: (
+            <AuthenLayout>
+              <Login />
+            </AuthenLayout>
+          ),
+        },
+        {
+          path: PATH.REGISTER,
+          element: (
+            <AuthenLayout>
+              <Register />
+            </AuthenLayout>
+          ),
+        },
+      ],
+    },
+  ])
+  return routes
+}
+
+export default useRoutesElement
