@@ -9,7 +9,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { PAGE_SIZE } from '../../constant';
 import { useListProject } from '../../hooks/useListProject';
 import { Project } from '../../interface/projectListInter';
-import { forEach } from 'lodash';
+// import { forEach } from 'lodash';
 const ProjectList: React.FC = () => {
   const navigate = useNavigate()
   type SearchProps = GetProps<typeof Input.Search>;
