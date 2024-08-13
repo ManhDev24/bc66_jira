@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { getLocalStorage } from '../../util'
+import { getLocalStorage } from '../../utils'
 import { CurrentUser } from '../../interface/user.interface'
 
 const userLocalStorage = getLocalStorage<CurrentUser>('user')

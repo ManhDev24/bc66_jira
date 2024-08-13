@@ -1,9 +1,9 @@
 // hooks/index.ts
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from './store'
-import { removeLocalStorage } from '../util'
+import { removeLocalStorage } from '../utils'
 import { PATH } from '../routes/path'
-import { signOut } from '../Redux/slices/user_slice'
+import { signOut } from './slices/user_slice'
 import { useNavigate } from 'react-router-dom'
 
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
