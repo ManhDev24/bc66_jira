@@ -1,118 +1,98 @@
-import React, { useMemo, useRef } from "react";
-import { Link } from "react-router-dom";
-import { PATH } from "../../routes/path";
-import { Button, Drawer, Flex, Menu, Spin, Switch } from "antd";
-import { useState } from "react";
-import { DownOutlined } from "@ant-design/icons";
-import type { MenuProps } from "antd";
-import { Dropdown, Space } from "antd";
-import { Select } from "antd";
-import type { SelectProps } from "antd";
-import { Input, InputNumber, Slider } from "antd";
-import debounce from "lodash/debounce";
-import type { InputNumberProps } from "antd";
-import { Editor } from "@tinymce/tinymce-react";
-import tinymce from "tinymce";
-export interface DebounceSelectProps<ValueType = any>
-  extends Omit<SelectProps<ValueType | ValueType[]>, "options" | "children"> {
-  fetchOptions: (search: string) => Promise<ValueType[]>;
-  debounceTimeout?: number;
+import React, { useMemo, useRef } from 'react'
+import { Link } from 'react-router-dom'
+import { PATH } from '../../routes/path'
+import { Button, Drawer, Flex, Menu, Spin, Switch } from 'antd'
+import { useState } from 'react'
+import { DownOutlined } from '@ant-design/icons'
+import type { MenuProps } from 'antd'
+import { Dropdown, Space } from 'antd'
+import { Select } from 'antd'
+import type { SelectProps } from 'antd'
+import { Input, InputNumber, Slider } from 'antd'
+import debounce from 'lodash/debounce'
+import type { InputNumberProps } from 'antd'
+import { Editor } from '@tinymce/tinymce-react'
+export interface DebounceSelectProps<ValueType = any> extends Omit<SelectProps<ValueType | ValueType[]>, 'options' | 'children'> {
+  fetchOptions: (search: string) => Promise<ValueType[]>
+  debounceTimeout?: number
 }
 
 function DebounceSelect<
   ValueType extends {
-    key?: string;
-    label: React.ReactNode;
-    value: string | number;
+    key?: string
+    label: React.ReactNode
+    value: string | number
   } = any
->({
-  fetchOptions,
-  debounceTimeout = 800,
-  ...props
-}: DebounceSelectProps<ValueType>) {
-  const [fetching, setFetching] = useState(false);
-  const [options, setOptions] = useState<ValueType[]>([]);
-  const fetchRef = useRef(0);
+>({ fetchOptions, debounceTimeout = 800, ...props }: DebounceSelectProps<ValueType>) {
+  const [fetching, setFetching] = useState(false)
+  const [options, setOptions] = useState<ValueType[]>([])
+  const fetchRef = useRef(0)
 
   const debounceFetcher = useMemo(() => {
     const loadOptions = (value: string) => {
-      fetchRef.current += 1;
-      const fetchId = fetchRef.current;
-      setOptions([]);
-      setFetching(true);
+      fetchRef.current += 1
+      const fetchId = fetchRef.current
+      setOptions([])
+      setFetching(true)
 
       fetchOptions(value).then((newOptions) => {
         if (fetchId !== fetchRef.current) {
           // for fetch callback order
-          return;
+          return
         }
 
-        setOptions(newOptions);
-        setFetching(false);
-      });
-    };
+        setOptions(newOptions)
+        setFetching(false)
+      })
+    }
 
-    return debounce(loadOptions, debounceTimeout);
-  }, [fetchOptions, debounceTimeout]);
+    return debounce(loadOptions, debounceTimeout)
+  }, [fetchOptions, debounceTimeout])
 
-  return (
-    <Select
-      labelInValue
-      filterOption={false}
-      onSearch={debounceFetcher}
-      notFoundContent={fetching ? <Spin size="small" /> : null}
-      {...props}
-      options={options}
-    />
-  );
+  return <Select labelInValue filterOption={false} onSearch={debounceFetcher} notFoundContent={fetching ? <Spin size="small" /> : null} {...props} options={options} />
 }
 
 // Usage of DebounceSelect
 interface UserValue {
-  label: string;
-  value: string;
+  label: string
+  value: string
 }
 
 async function fetchUserList(username: string): Promise<UserValue[]> {
-  console.log("fetching user", username);
+  console.log('fetching user', username)
 
-  return fetch("https://randomuser.me/api/?results=5")
+  return fetch('https://randomuser.me/api/?results=5')
     .then((response) => response.json())
     .then((body) =>
-      body.results.map(
-        (user: {
-          name: { first: string; last: string };
-          login: { username: string };
-        }) => ({
-          label: `${user.name.first} ${user.name.last}`,
-          value: user.login.username,
-        })
-      )
-    );
+      body.results.map((user: { name: { first: string; last: string }; login: { username: string } }) => ({
+        label: `${user.name.first} ${user.name.last}`,
+        value: user.login.username,
+      }))
+    )
 }
 const Navbar: React.FC = () => {
   // FETCH LIST USER
-  const [value, setValue] = useState<UserValue[]>([]);
+  const [value, setValue] = useState<UserValue[]>([])
   // Drawer
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
   const showDrawer = () => {
-    setOpen(true);
-  };
+    setOpen(true)
+  }
 
   const onClose = () => {
-    setOpen(false);
-  };
+    setOpen(false)
+  }
   // menu Projects
-  const items: MenuProps["items"] = [
+  const items: MenuProps['items'] = [
     {
       label: <Link to={PATH.PROJECT}>View all project</Link>,
-      key: "0",
+      key: '0',
     },
     {
       label: <Link to={PATH.NEW}>Create project</Link>,
-      key: "1",
+      key: '1',
     },
-  ];
+  ]
   // menu User
   const menuItems1 = (
     <Menu>
@@ -120,66 +100,57 @@ const Navbar: React.FC = () => {
         <Link to={PATH.USER}>View all users</Link>
       </Menu.Item>
     </Menu>
-  );
+  )
 
   // select project drawer
-  type LabelRender = SelectProps["labelRender"];
+  type LabelRender = SelectProps['labelRender']
 
   const options = [
-    { label: "gold", value: "gold" },
-    { label: "lime", value: "lime" },
-    { label: "green", value: "green" },
-    { label: "cyan", value: "cyan" },
-  ];
+    { label: 'gold', value: 'gold' },
+    { label: 'lime', value: 'lime' },
+    { label: 'green', value: 'green' },
+    { label: 'cyan', value: 'cyan' },
+  ]
   const labelRender: LabelRender = (props) => {
-    const { label, value } = props;
+    const { label, value } = props
 
     if (label) {
-      return value;
+      return value
     }
-    return <span> value </span>;
-  };
+    return <span> value </span>
+  }
 
   // Select Status
   const handleChange = (value: string) => {
-    console.log(`selected ${value}`);
-  };
+    console.log(`selected ${value}`)
+  }
   // Drawer select input number
-  const onChange: InputNumberProps["onChange"] = (value) => {
-    console.log("changed", value);
-  };
+  const onChange: InputNumberProps['onChange'] = (value) => {
+    console.log('changed', value)
+  }
   // drawer Slider
-  const [disabled, setDisabled] = useState(false);
+  const [disabled, setDisabled] = useState(false)
   const onChange1 = (checked: boolean) => {
-    setDisabled(checked);
-  };
+    setDisabled(checked)
+  }
 
   return (
     <div>
-      <header className="h-14 bg-white shadow px-4 fixed left-0 top-0 w-full z-header" style={{zIndex:"10"}}>
+      <header className="h-14 bg-white shadow px-4 fixed left-0 top-0 w-full z-header" style={{ zIndex: '10' }}>
         <div className="h-full flex justify-between items-center">
           <nav className="h-full flex items-center">
             {/* link to projects icon */}
-            <a
-              className="text-blue-700 font-medium py-1 px-2 hover:bg-blue-200 focus:bg-blue-200 rounded mr-1"
-              href={PATH.PROJECT}
-            >
+            <a className="text-blue-700 font-medium py-1 px-2 hover:bg-blue-200 focus:bg-blue-200 rounded mr-1" href={PATH.PROJECT}>
               <svg
                 viewBox="0 0 32 32"
                 xmlns="http://www.w3.org/2000/svg"
                 focusable="false"
                 aria-hidden="true"
                 className="h-6 block md:hidden"
-                style={{ color: "rgb(38, 132, 255)", fill: "rgb(37, 56, 88)" }}
+                style={{ color: 'rgb(38, 132, 255)', fill: 'rgb(37, 56, 88)' }}
               >
                 <defs>
-                  <linearGradient
-                    x1="94.092%"
-                    x2="56.535%"
-                    y1="6.033%"
-                    y2="43.087%"
-                    id="uid2"
-                  >
+                  <linearGradient x1="94.092%" x2="56.535%" y1="6.033%" y2="43.087%" id="uid2">
                     <stop stopColor="#0052CC" offset="18%" />
                     <stop stopColor="#2684FF" offset="100%" />
                   </linearGradient>
@@ -206,16 +177,10 @@ const Navbar: React.FC = () => {
                 focusable="false"
                 aria-hidden="true"
                 className="h-6 block md:hidden"
-                style={{ color: "rgb(38, 132, 255)", fill: "rgb(37, 56, 88)" }}
+                style={{ color: 'rgb(38, 132, 255)', fill: 'rgb(37, 56, 88)' }}
               >
                 <defs>
-                  <linearGradient
-                    x1="94.092%"
-                    x2="56.535%"
-                    y1="6.033%"
-                    y2="43.087%"
-                    id="uid2"
-                  >
+                  <linearGradient x1="94.092%" x2="56.535%" y1="6.033%" y2="43.087%" id="uid2">
                     <stop stopColor="#0052CC" offset="18%" />
                     <stop stopColor="#2684FF" offset="100%" />
                   </linearGradient>
@@ -241,16 +206,10 @@ const Navbar: React.FC = () => {
                 focusable="false"
                 aria-hidden="true"
                 className="h-6 hidden md:block"
-                style={{ color: "rgb(38, 132, 255)", fill: "rgb(37, 56, 88)" }}
+                style={{ color: 'rgb(38, 132, 255)', fill: 'rgb(37, 56, 88)' }}
               >
                 <defs>
-                  <linearGradient
-                    x1="98.0308675%"
-                    y1="0.160599572%"
-                    x2="58.8877062%"
-                    y2="40.7655246%"
-                    id="uid1"
-                  >
+                  <linearGradient x1="98.0308675%" y1="0.160599572%" x2="58.8877062%" y2="40.7655246%" id="uid1">
                     <stop stopColor="#0052CC" offset="18%" />
                     <stop stopColor="#2684FF" offset="100%" />
                   </linearGradient>
@@ -277,11 +236,7 @@ const Navbar: React.FC = () => {
               </svg>
             </a>
             {/* btn link to projects */}
-            <Dropdown
-              className="ant-dropdown-trigger text-blue-700 h-8 font-medium py-1.5 hover:bg-blue-200 focus:bg-blue-200 rounded px-3"
-              menu={{ items }}
-              trigger={["click"]}
-            >
+            <Dropdown className="ant-dropdown-trigger text-blue-700 h-8 font-medium py-1.5 hover:bg-blue-200 focus:bg-blue-200 rounded px-3" menu={{ items }} trigger={['click']}>
               <a onClick={(e) => e.preventDefault()}>
                 <Space>
                   Projects
@@ -290,11 +245,7 @@ const Navbar: React.FC = () => {
               </a>
             </Dropdown>
             {/* btn link to users */}
-            <Dropdown
-              className="ant-dropdown-trigger text-blue-700 h-8 font-medium py-1.5 hover:bg-blue-200 focus:bg-blue-200 rounded px-3"
-              overlay={menuItems1}
-              trigger={["click"]}
-            >
+            <Dropdown className="ant-dropdown-trigger text-blue-700 h-8 font-medium py-1.5 hover:bg-blue-200 focus:bg-blue-200 rounded px-3" overlay={menuItems1} trigger={['click']}>
               <a onClick={(e) => e.preventDefault()}>
                 <Space>
                   User
@@ -312,16 +263,8 @@ const Navbar: React.FC = () => {
               <form className="container">
                 <div className="w-full">
                   <p className="mb-0">Project </p>
-                  <Select
-                    className="my-1"
-                    labelRender={labelRender}
-                    defaultValue="1"
-                    style={{ width: "100%" }}
-                    options={options}
-                  />
-                  <span className="italic font-medium text-sm mt-2 ">
-                    * You can only create tasks of your own projects!
-                  </span>
+                  <Select className="my-1" labelRender={labelRender} defaultValue="1" style={{ width: '100%' }} options={options} />
+                  <span className="italic font-medium text-sm mt-2 ">* You can only create tasks of your own projects!</span>
                 </div>
                 <div className="mt-3">
                   <p className="mb-0">Task name</p>
@@ -332,12 +275,12 @@ const Navbar: React.FC = () => {
                   <Space wrap className="d-block_choose">
                     <Select
                       defaultValue="lucy"
-                      style={{ width: "100%" }}
+                      style={{ width: '100%' }}
                       onChange={handleChange}
                       options={[
-                        { value: "jack", label: "Jack" },
-                        { value: "lucy", label: "Lucy" },
-                        { value: "Yiminghe", label: "yiminghe" },
+                        { value: 'jack', label: 'Jack' },
+                        { value: 'lucy', label: 'Lucy' },
+                        { value: 'Yiminghe', label: 'yiminghe' },
                       ]}
                     />
                   </Space>
@@ -345,23 +288,18 @@ const Navbar: React.FC = () => {
                 <div className="w-full flex justify-between ">
                   <div className="w-5/12 mt-3 ">
                     <p>Priority </p>
-                    <Space
-                      wrap
-                      name="priorityId"
-                      style={{ width: "100%" }}
-                      className="d-block_choose"
-                    >
+                    <Space wrap name="priorityId" style={{ width: '100%' }} className="d-block_choose">
                       <Select
                         defaultValue="lucy"
-                        style={{ width: "100%" }}
+                        style={{ width: '100%' }}
                         onChange={handleChange}
                         options={[
-                          { value: "jack", label: "Jack" },
-                          { value: "lucy", label: "Lucy" },
-                          { value: "Yiminghe", label: "yiminghe" },
+                          { value: 'jack', label: 'Jack' },
+                          { value: 'lucy', label: 'Lucy' },
+                          { value: 'Yiminghe', label: 'yiminghe' },
                           {
-                            value: "disabled",
-                            label: "Disabled",
+                            value: 'disabled',
+                            label: 'Disabled',
                             disabled: true,
                           },
                         ]}
@@ -370,23 +308,18 @@ const Navbar: React.FC = () => {
                   </div>
                   <div className="w-5/12 mt-3 ">
                     <p>Task Type</p>
-                    <Space
-                      wrap
-                      name="typeId"
-                      style={{ width: "100%" }}
-                      className="d-block_choose"
-                    >
+                    <Space wrap name="typeId" style={{ width: '100%' }} className="d-block_choose">
                       <Select
                         defaultValue="lucy"
-                        style={{ width: "100%" }}
+                        style={{ width: '100%' }}
                         onChange={handleChange}
                         options={[
-                          { value: "jack", label: "Jack" },
-                          { value: "lucy", label: "Lucy" },
-                          { value: "Yiminghe", label: "yiminghe" },
+                          { value: 'jack', label: 'Jack' },
+                          { value: 'lucy', label: 'Lucy' },
+                          { value: 'Yiminghe', label: 'yiminghe' },
                           {
-                            value: "disabled",
-                            label: "Disabled",
+                            value: 'disabled',
+                            label: 'Disabled',
                             disabled: true,
                           },
                         ]}
@@ -404,9 +337,9 @@ const Navbar: React.FC = () => {
                     placeholder="Select users"
                     fetchOptions={fetchUserList}
                     onChange={(newValue) => {
-                      setValue(newValue as UserValue[]);
+                      setValue(newValue as UserValue[])
                     }}
-                    style={{ width: "100%" }}
+                    style={{ width: '100%' }}
                   />
                 </div>
                 <div className="w-full mt-3">
@@ -414,35 +347,16 @@ const Navbar: React.FC = () => {
                   <div className="w-full flex justify-between ">
                     <div className="w-5/12 mt-3 ">
                       <p>Hours spent </p>
-                      <InputNumber
-                        style={{ width: "100%" }}
-                        name="originalEstimate"
-                        min={1}
-                        max={10}
-                        defaultValue={3}
-                        onChange={onChange}
-                      />
+                      <InputNumber style={{ width: '100%' }} name="originalEstimate" min={1} max={10} defaultValue={3} onChange={onChange} />
                     </div>
                     <div className="w-5/12 mt-3 ">
                       <p>Hours spent </p>
-                      <InputNumber
-                        style={{ width: "100%" }}
-                        name="timeTrackingSpent"
-                        min={1}
-                        max={10}
-                        defaultValue={3}
-                        onChange={onChange}
-                      />
+                      <InputNumber style={{ width: '100%' }} name="timeTrackingSpent" min={1} max={10} defaultValue={3} onChange={onChange} />
                     </div>
                   </div>
                   <div className="w-full">
                     <Slider defaultValue={30} disabled={disabled} />
-                    Disabled:{" "}
-                    <Switch
-                      size="small"
-                      checked={disabled}
-                      onChange={onChange1}
-                    />
+                    Disabled: <Switch size="small" checked={disabled} onChange={onChange1} />
                   </div>
                 </div>
                 <div>
@@ -452,30 +366,26 @@ const Navbar: React.FC = () => {
                       apiKey="vrdoer2sv642y76nwqxuds28hfp3zk5z00ohhlsi2t520aku"
                       init={{
                         plugins:
-                          "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate ai mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown",
+                          'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate ai mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown',
                         toolbar:
-                          "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
-                        tinycomments_mode: "embedded",
-                        tinycomments_author: "Author name",
+                          'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+                        tinycomments_mode: 'embedded',
+                        tinycomments_author: 'Author name',
                         mergetags_list: [
-                          { value: "First.Name", title: "First Name" },
-                          { value: "Email", title: "Email" },
+                          { value: 'First.Name', title: 'First Name' },
+                          { value: 'Email', title: 'Email' },
                         ],
-                        ai_request: (request, respondWith) =>
-                          respondWith.string(() =>
-                            Promise.reject("See docs to implement AI Assistant")
-                          ),
+                        ai_request: (request, respondWith) => respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
                       }}
                       initialValue="Welcome to TinyMCE!"
                     />
                   </div>
                 </div>
-
               </form>
               <div className="my-4">
                 <Flex gap="small" wrap>
-                    <Button type="primary">Submit</Button>
-                    <Button type="dashed">Cancel</Button>
+                  <Button type="primary">Submit</Button>
+                  <Button type="dashed">Cancel</Button>
                 </Flex>
               </div>
             </Drawer>
@@ -484,7 +394,7 @@ const Navbar: React.FC = () => {
         </div>
       </header>
     </div>
-  );
-};
+  )
+}
 
-export default Navbar;
+export default Navbar
