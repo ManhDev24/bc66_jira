@@ -26,11 +26,23 @@ const useRoutesElement = () => {
   const routes = useRoutes([
     {
       path: '*',
-      element: <HomeLayout />,
+      element: <ProtectedRoutes />,
+      
     },
     {
       path: '',
-      element: <HomeLayout />,
+      element: <ProtectedRoutes />,
+      
+    },
+    {
+      path: '*',
+      element: <RejectedRoutes />,
+      
+    },
+    {
+      path: '',
+      element: <RejectedRoutes />,
+      
     },
     {
       path: '/',
