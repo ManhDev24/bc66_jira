@@ -25,8 +25,28 @@ const ProtectedRoutes = () => {
 const useRoutesElement = () => {
   const routes = useRoutes([
     {
+      path: '*',
+      element: <HomeLayout/>,
+      
+    },
+    {
+      path: '',
+      element: <HomeLayout/>,
+      
+    },
+    {
       path: '/',
       element: <ProtectedRoutes />,
+      children: [
+        {
+          path: PATH.HOME,
+          element: <HomeLayout />,
+        },
+      ],
+    },
+    {
+      path: '/',
+      element: <RejectedRoutes />,
       children: [
         {
           path: PATH.HOME,
