@@ -6,6 +6,7 @@ import { AuthenLayout } from '../layout/AuthemLayout'
 import { Register } from '../modules/Auth/Register'
 import HomePage from '../modules/Home/HomePage'
 import HomeLayout from '../layout/Home/HomeLayout'
+import User from '../layout/Users/User'
 const RejectedRoutes = () => {
   const { currentUser } = useAppSelector((state) => state.user)
   if (currentUser !== null) {
@@ -27,22 +28,30 @@ const useRoutesElement = () => {
     {
       path: '*',
       element: <ProtectedRoutes />,
-      
     },
     {
       path: '',
       element: <ProtectedRoutes />,
-      
     },
     {
-      path: '*',
-      element: <RejectedRoutes />,
-      
+      path: '/',
+      element: <ProtectedRoutes />,
+      children: [
+        {
+          path: PATH.USER,
+          element: <User />,
+        },
+      ],
     },
     {
-      path: '',
+      path: '/',
       element: <RejectedRoutes />,
-      
+      children: [
+        {
+          path: PATH.USER,
+          element: <User />,
+        },
+      ],
     },
     {
       path: '/',
