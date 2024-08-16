@@ -13,7 +13,7 @@ import { Project } from '../../interface/projectListInter';
 const ProjectList: React.FC = () => {
   const navigate = useNavigate()
   type SearchProps = GetProps<typeof Input.Search>;
-
+  
   const { Search } = Input;
 
   const suffix = (
@@ -117,7 +117,7 @@ const ProjectList: React.FC = () => {
           <Typography>
               <Title>Projects</Title>
           </Typography>
-          <Button onClick={()=>{navigate(`projects/new`)}} className='flex justify-center items-center h-8 bg-blue-700 hover:bg-blue-600 focus:bg-blue-600 text-white hover:text-white font-medium py-1.5 px-3 rounded cursor-pointer'>
+          <Button onClick={()=>{navigate(`new`)}} className='flex justify-center items-center h-8 bg-blue-700 hover:bg-blue-600 focus:bg-blue-600 text-white hover:text-white font-medium py-1.5 px-3 rounded cursor-pointer'>
               Create project
           </Button>
         </div>

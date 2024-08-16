@@ -1,8 +1,8 @@
 import {  PAGE_SIZE } from '../constant'
 import { BREARER, TOKEN_CYBERSOFT } from '../constant/urlConfig';
-import { ApiWelcome } from '../interface'
-import { Project } from '../interface/projectListInter';
-import { DataListProject } from './../interface/projectListInter'
+import { Welcome } from '../interface'
+import { Project, ProjectData } from '../interface/projectListInter';
+import { DataListProject,Pr } from './../interface/projectListInter'
 import fetcher from './fetcher'
 
 export const projectApi = {
@@ -12,12 +12,24 @@ export const projectApi = {
             soPhanTuTrenTrang: payload.pageSize || PAGE_SIZE,
         }  
       try {
-        const response = await fetcher.get<ApiWelcome<DataListProject>>('/Project/getAllProject', {
+        const response = await fetcher.get<Welcome<DataListProject>>('/Project/getAllProject', {
             params,
         })
         console.log(response.data.content)
         return response.data.content
       } catch (error: any) {
+        
+        throw Error(error.response.data.content)
+        
+      }
+    },
+    addProject: async <T>(payload: ProjectData) => {
+      try {
+        const response = await fetcher.post('https://jiranew.cybersoft.edu.vn/api/Project/createProject', payload)
+        console.log(response.data.content);
+        return response.data.content
+      } catch (error: any) {
+        console.log(error);
         throw Error(error.response.data.content)
       }
     },

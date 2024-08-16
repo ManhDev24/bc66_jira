@@ -12,6 +12,7 @@ import { Input, InputNumber, Slider } from 'antd'
 import debounce from 'lodash/debounce'
 import type { InputNumberProps } from 'antd'
 import { Editor } from '@tinymce/tinymce-react'
+import logo from '../../../public/ico.png'
 export interface DebounceSelectProps<ValueType = any> extends Omit<SelectProps<ValueType | ValueType[]>, 'options' | 'children'> {
   fetchOptions: (search: string) => Promise<ValueType[]>
   debounceTimeout?: number
@@ -70,7 +71,7 @@ async function fetchUserList(username: string): Promise<UserValue[]> {
       }))
     )
 }
-const Navbar: React.FC = () => {
+const Navbar: React.FC = ({children}) => {
   // FETCH LIST USER
   const [value, setValue] = useState<UserValue[]>([])
   // Drawer
@@ -170,7 +171,7 @@ const Navbar: React.FC = () => {
                   />
                 </g>
               </svg>
-              <img src="./ico.png" className="ml-5" width={25} alt="..." />
+              <img src={logo} className="ml-5" width={25} alt="..." />
               <svg
                 viewBox="0 0 32 32"
                 xmlns="http://www.w3.org/2000/svg"
@@ -393,6 +394,7 @@ const Navbar: React.FC = () => {
           <div className="flex items-center"></div>
         </div>
       </header>
+      <div>{children}</div>
     </div>
   )
 }

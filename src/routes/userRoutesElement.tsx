@@ -7,6 +7,7 @@ import { Register } from '../modules/Auth/Register'
 import HomePage from '../modules/Home/HomePage'
 import HomeLayout from '../layout/Home/HomeLayout'
 import User from '../layout/Users/User'
+import { AddProject } from '../modules/Project/AddProjects'
 const RejectedRoutes = () => {
   const { currentUser } = useAppSelector((state) => state.user)
   if (currentUser !== null) {
@@ -28,11 +29,13 @@ const useRoutesElement = () => {
     {
       path: '*',
       element: <ProtectedRoutes />,
+      
     },
     {
       path: '',
       element: <ProtectedRoutes />,
     },
+    
     {
       path: '/',
       element: <ProtectedRoutes />,
@@ -42,6 +45,10 @@ const useRoutesElement = () => {
           element: <User />,
         },
       ],
+    },
+    {
+      path: 'projects/new',
+      element: <AddProject/>,
     },
     {
       path: '/',
