@@ -97,3 +97,8 @@ button {
     --tw-bg-opacity: 1;
     background-color: rgb(37 99 235 / var(--tw-bg-opacity));
 }
+:where(.css-dev-only-do-not-override-1c0na6j).ant-btn-default:not(:disabled):not(.ant-btn-disabled):hover {
+    color: #4096ff;
+    border-color: #4096ff;
+    background: #4096ff !important;
+}

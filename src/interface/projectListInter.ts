@@ -31,3 +31,9 @@ export interface DataListProject {
     totalCount: number
     items: Project[]
 }
+export interface ProjectData {
+    projectsName: string
+    projectsCategory: number
+    description: string
+    alias:string;
+  }
