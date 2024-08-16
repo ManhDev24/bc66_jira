@@ -20,7 +20,7 @@ interface DataType {
   avatar: string
 }
 
-export interface FormValues {
+interface FormValues {
   userId: string
   password: string
   confirmPass: string
@@ -218,15 +218,19 @@ const User = () => {
   const { mutate: handleEditUser, isLoading: isEditing } = useMutation({
     mutationFn: (payload: FormValues) => userAPI.editUser(payload),
     onSuccess: () => {
+      toast.success('Edit successful!!')
+      handleCancel()
       queryClient.refetchQueries({
         queryKey: ['list-user'],
         type: 'active',
       })
     },
-    onError: (error) => {
-      console.error('Error updating user:', error)
+    onError: (error: any) => {
+      const errorMessage = error?.message || 'An unexpected error occurred'
+      toast.error(errorMessage)
     },
   })
+
   const { mutate: handleDeleteUser, isLoading: isDeleting } = useMutation({
     mutationFn: (id: string) => userAPI.deleteUser(id),
     onSuccess: () => {
@@ -235,12 +239,14 @@ const User = () => {
         type: 'active',
       })
     },
-    onError: (error) => {
-      console.log('error: ', error)
+    onError: (error: any) => {
+      const errorMessage = error?.message || 'An unexpected error occurred'
+      toast.error(errorMessage)
     },
   })
   const onSubmit = (data: FormValues) => {
-    const { confirmPass, ...formData } = data
+    const { confirmPass, userId, ...rest } = data
+    const formData = { id: userId, ...rest }
     handleEditUser(formData as any)
   }
 

@@ -1,9 +1,9 @@
 import React, { useMemo, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { PATH } from '../../routes/path'
-import { Button, Drawer, Flex, Menu, Spin, Switch } from 'antd'
+import { Avatar, Button, Drawer, Flex, Menu, Spin, Switch, Typography } from 'antd'
 import { useState } from 'react'
-import { DownOutlined } from '@ant-design/icons'
+import { DownOutlined, SmileOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import { Dropdown, Space } from 'antd'
 import { Select } from 'antd'
@@ -12,6 +12,9 @@ import { Input, InputNumber, Slider } from 'antd'
 import debounce from 'lodash/debounce'
 import type { InputNumberProps } from 'antd'
 import { Editor } from '@tinymce/tinymce-react'
+import { useAppDispatch, useAppSelector } from '../../redux/hook'
+import { signOut } from '../../redux/slices/user_slice'
+import { setLocalStorage } from '../../utils'
 export interface DebounceSelectProps<ValueType = any> extends Omit<SelectProps<ValueType | ValueType[]>, 'options' | 'children'> {
   fetchOptions: (search: string) => Promise<ValueType[]>
   debounceTimeout?: number
@@ -27,7 +30,6 @@ function DebounceSelect<
   const [fetching, setFetching] = useState(false)
   const [options, setOptions] = useState<ValueType[]>([])
   const fetchRef = useRef(0)
-
   const debounceFetcher = useMemo(() => {
     const loadOptions = (value: string) => {
       fetchRef.current += 1
@@ -133,6 +135,46 @@ const Navbar: React.FC = () => {
   const onChange1 = (checked: boolean) => {
     setDisabled(checked)
   }
+  const user = useAppSelector((state) => state.user.currentUser)
+  const dispatch = useAppDispatch()
+  const handleSignOut = () => {
+    dispatch(signOut())
+    setLocalStorage('user', null)
+  }
+  const DropDownAvatar: MenuProps['items'] = [
+    {
+      key: '1',
+      label: (
+        <span style={{ cursor: 'auto' }} className=" font-bold text-md text-gray-500 uppercase pr-20 ">
+          {user?.name}
+        </span>
+      ),
+      disabled: true,
+    },
+    {
+      key: '2',
+      label: (
+        <a className="no-underline " rel="noopener noreferrer" href={PATH.PROFILE}>
+          <span className="text-gray-500 text-md">Profile</span>
+        </a>
+      ),
+    },
+    {
+      key: '3',
+      label: (
+        <a
+          onClick={() => {
+            handleSignOut()
+          }}
+          className="no-underline "
+          rel="noopener noreferrer"
+          href=""
+        >
+          <span className="text-gray-500 text-md">Sign out</span>
+        </a>
+      ),
+    },
+  ]
 
   return (
     <div>
@@ -259,6 +301,8 @@ const Navbar: React.FC = () => {
                 Create Task
               </Button>
             </div>
+            {/* create avatar */}
+
             <Drawer title="Create Task" onClose={onClose} open={open}>
               <form className="container">
                 <div className="w-full">
@@ -390,7 +434,11 @@ const Navbar: React.FC = () => {
               </div>
             </Drawer>
           </nav>
-          <div className="flex items-center"></div>
+          <div>
+            <Dropdown menu={{ items: DropDownAvatar }} placement="bottomLeft" trigger={['click']}>
+              <Avatar src={user?.avatar} className="hover:shadow-lg hover:scale-105 transition-transform duration-200 ease-in-out cursor-pointer" />
+            </Dropdown>
+          </div>
         </div>
       </header>
     </div>

@@ -4,9 +4,9 @@ import { Login } from '../modules/Auth/Login'
 import { useAppSelector } from '../redux/hook'
 import { AuthenLayout } from '../layout/AuthemLayout'
 import { Register } from '../modules/Auth/Register'
-import HomePage from '../modules/Home/HomePage'
 import HomeLayout from '../layout/Home/HomeLayout'
 import User from '../layout/Users/User'
+import { ProfileUser } from '../layout/Profile'
 const RejectedRoutes = () => {
   const { currentUser } = useAppSelector((state) => state.user)
   if (currentUser !== null) {
@@ -50,6 +50,26 @@ const useRoutesElement = () => {
         {
           path: PATH.USER,
           element: <User />,
+        },
+      ],
+    },
+    {
+      path: '/',
+      element: <ProtectedRoutes />,
+      children: [
+        {
+          path: PATH.PROFILE,
+          element: <ProfileUser />,
+        },
+      ],
+    },
+    {
+      path: '/',
+      element: <RejectedRoutes />,
+      children: [
+        {
+          path: PATH.PROFILE,
+          element: <ProfileUser />,
         },
       ],
     },
