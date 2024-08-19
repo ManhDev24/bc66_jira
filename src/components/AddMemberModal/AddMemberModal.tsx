@@ -20,6 +20,7 @@ import {
     setProjectErrorNullAction,
   } from "../../redux/slices/project_slices";
   import { getAllUserApi } from "../../redux/slices/user_slice";
+  
 
   
   const AddMemberModal = (props:any) => {
@@ -57,6 +58,9 @@ import {
         });
   
         clonedUsers.splice(index, 1);
+        if(projectMembers.length < 0){
+          alert("Project without members was created")
+        }
       }
   
       usersRef.current = [...clonedUsers];
@@ -139,7 +143,7 @@ import {
   
       setFilteredUsers([...foundUsers]);
     };
-  
+    
     return (
       <>
         <Modal

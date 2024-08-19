@@ -85,7 +85,7 @@ export const createProjectAuthorizeApi = (project:any, callback:any) => {
     };
 };
 
-export const assignUserToProjectApi = (addUser:any, callback) => {
+export const assignUserToProjectApi = (addUser:any, callback: { (): void; (): void; }) => {
   return async (dispatch:any) => {
     try {
       fetcher.post(`/Project/assignUserProject`, addUser);
@@ -99,8 +99,8 @@ export const assignUserToProjectApi = (addUser:any, callback) => {
   };
 };
 
-export const removeUserFromProjectApi = (data:any, callback) => {
-  return async (dispatch) => {
+export const removeUserFromProjectApi = (data:any, callback: { (): void; (): void; }) => {
+  return async (dispatch: (arg0: { payload: any; type: "projectReducer/setProjectErrorNullAction"; }) => void) => {
     dispatch(setProjectErrorNullAction(null));
     try {
       await fetcher.post("/Project/removeUserFromProject", data);
@@ -115,7 +115,7 @@ export const removeUserFromProjectApi = (data:any, callback) => {
 };
 
 export const getUsersByProjectIdApi = (projectId:any) => {
-  return async (dispatch) => {
+  return async (dispatch: (arg0: { payload: any; type: "projectReducer/getUsersByProjectIdAction"; }) => void) => {
     try {
       const result = await fetcher.get(
         `/Users/getUserByProjectId?idProject=${projectId}`
@@ -129,3 +129,19 @@ export const getUsersByProjectIdApi = (projectId:any) => {
     }
   };
 };
+
+export const getAllProject = () =>{
+  return async (dispatch: (arg0: { payload: any; type: "projectReducer/getAllProjectCategoryAction"; }) => void) => {
+    const result = await fetcher.get(`/Project/getAllProject`);
+    const action = getAllProjectCategoryAction(result.data.content);
+    dispatch(action);
+  };
+}
+
+export const deleteProjectApi =(projectId:any)=>{
+  //Project/deleteProject
+  return async (dispatch: any) => {
+    await fetcher.delete(`/Project/deleteProject?projectId=${projectId}`);
+    window.location.reload();
+  };
+}

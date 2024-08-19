@@ -15,6 +15,7 @@ import { Editor } from '@tinymce/tinymce-react'
 import { useAppDispatch, useAppSelector } from '../../redux/hook'
 import { signOut } from '../../redux/slices/user_slice'
 import { setLocalStorage } from '../../utils'
+import logo from '../../../public/ico.png'
 export interface DebounceSelectProps<ValueType = any> extends Omit<SelectProps<ValueType | ValueType[]>, 'options' | 'children'> {
   fetchOptions: (search: string) => Promise<ValueType[]>
   debounceTimeout?: number
@@ -212,7 +213,7 @@ const Navbar: React.FC = () => {
                   />
                 </g>
               </svg>
-              <img src="./ico.png" className="ml-5" width={25} alt="..." />
+              <img src={logo} className="ml-5" width={25} alt="..." />
               <svg
                 viewBox="0 0 32 32"
                 xmlns="http://www.w3.org/2000/svg"
