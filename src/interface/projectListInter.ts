@@ -33,7 +33,7 @@ export interface DataListProject {
 }
 export interface ProjectData {
     projectsName: string
-    projectsCategory: number
+    categoryId: number
     description: string
     alias:string;
   }

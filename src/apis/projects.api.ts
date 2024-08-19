@@ -23,7 +23,7 @@ export const projectApi = {
         
       }
     },
-    addProject: async <T>(payload: ProjectData) => {
+    addProject: async (payload: ProjectData) => {
       try {
         const response = await fetcher.post('https://jiranew.cybersoft.edu.vn/api/Project/createProject', payload)
         console.log(response.data.content);
