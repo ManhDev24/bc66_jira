@@ -7,4 +7,5 @@ export const PATH = {
   AUTH: '/auth',
   LOGIN: '/auth/login',
   REGISTER: '/auth/register',
+  EDIT:'projects/:id/edit'
 }
