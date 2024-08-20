@@ -15,7 +15,6 @@ export const projectApi = {
         const response = await fetcher.get<Welcome<DataListProject>>('/Project/getAllProject', {
             params,
         })
-        console.log(response.data.content)
         return response.data.content
       } catch (error: any) {
         

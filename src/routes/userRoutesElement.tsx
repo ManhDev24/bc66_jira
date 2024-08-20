@@ -8,6 +8,7 @@ import HomeLayout from '../layout/Home/HomeLayout'
 import User from '../layout/Users/User'
 import { ProfileUser } from '../layout/Profile'
 import { AddProject } from '../modules/Project/AddProjects'
+import { EditProject } from '../modules/Project/EditProjects'
 const RejectedRoutes = () => {
   const { currentUser } = useAppSelector((state) => state.user)
   if (currentUser !== null) {
@@ -37,6 +38,10 @@ const useRoutesElement = () => {
     {
       path:'projects/new',
       element:<AddProject/>
+    },
+    {
+      path:PATH.EDIT,
+      element:<EditProject/>
     },
     {
       path: '/',

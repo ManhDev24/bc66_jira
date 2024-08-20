@@ -88,8 +88,15 @@ export const createProjectAuthorizeApi = (project:any, callback:any) => {
 export const assignUserToProjectApi = (addUser:any, callback: { (): void; (): void; }) => {
   return async (dispatch:any) => {
     try {
-      fetcher.post(`/Project/assignUserProject`, addUser);
-      if (callback) callback();
+      const response = await fetcher.post(`/Project/assignUserProject`, addUser);
+      if (response.status === 200) {
+        console.log('User assigned successfully:', response.data);
+        if (callback) {
+          callback(); // Gọi callback nếu có
+        }
+      } else {
+        console.error('Failed to assign user:', response.status, response.statusText);
+      }
     } catch (error) {
       console.log(error);
       if (error.response.data.statusCode === 403) {
@@ -145,3 +152,20 @@ export const deleteProjectApi =(projectId:any)=>{
     window.location.reload();
   };
 }
+
+export const updateProjectApi = (projectUpdate) => {
+  return async (dispatch) => {
+    await fetcher.put(
+      `/Project/updateProject?projectId=${projectUpdate.id}`,
+      projectUpdate
+    );
+    window.location.reload();
+  };
+};
+export const getProjectDetailApi = (projectId) => {
+  return async (dispatch) => {
+    const result = await fetcher.get(`/Project/getProjectDetail?id=${projectId}`);
+    const action = getProjectDetailAction(result.data.content);
+    dispatch(action);
+  };
+};
