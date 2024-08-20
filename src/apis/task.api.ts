@@ -33,4 +33,12 @@ export const taskApi = {
       throw Error(error.response.data.message)
     }
   },
+  createTask: async (payload: any) => {
+    try {
+      const response = await fetcher.post('/Project/createTask', payload)
+      return response.data.content
+    } catch (error: any) {
+      throw Error(error.response.data.message)
+    }
+  },
 }

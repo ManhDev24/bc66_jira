@@ -17,13 +17,15 @@ import { useAppDispatch, useAppSelector } from '../../redux/hook'
 import { signOut } from '../../redux/slices/user_slice'
 import { setLocalStorage } from '../../utils'
 import logo from '../../../public/ico.png'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { projectApi } from '../../apis/projects.api'
 import { ProjectData } from '../../interface/projectListInter'
 import { Controller, useForm } from 'react-hook-form'
 import { taskApi } from '../../apis/task.api'
 import { taskPriority, taskStatus, taskType, taskUser } from '../../interface/task.interface'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 export interface DebounceSelectProps<ValueType = any> extends Omit<SelectProps<ValueType | ValueType[]>, 'options' | 'children'> {
   fetchOptions: (search: string) => Promise<ValueType[]>
@@ -85,7 +87,7 @@ interface UserValue {
 const schema = yup.object().shape({
   taskName: yup.string().required('Task name is required'),
 
-  // description: yup.string().required('Description is required'),
+  description: yup.string().required('Description is required'),
 })
 async function fetchUserList(username: string): Promise<UserValue[]> {
   console.log('fetching user', username)
@@ -103,9 +105,7 @@ const Navbar: React.FC = () => {
   // FETCH LIST USER
   const [value, setValue] = useState<UserValue[]>([])
   const [hoursSpent, setHoursSpent] = useState(1)
-  console.log('hoursSpent: ', hoursSpent)
   const [originalEstimate, setOriginalEstimate] = useState(3)
-  const editorRef = useRef(null)
 
   const [open, setOpen] = useState(false)
 
@@ -138,18 +138,54 @@ const Navbar: React.FC = () => {
     mode: 'onBlur',
     shouldFocusError: false,
   })
-  const descriptionValue = watch('description')
 
-  useEffect(() => {
-    if (descriptionValue !== undefined) {
-      setFormValue('description', descriptionValue) // Cập nhật giá trị nếu cần
+  const { mutate: createTask } = useMutation({
+    mutationFn: (payload: FormValue) => taskApi.createTask(payload),
+    onSuccess: () => {
+      toast.success('Task created successfully', {
+        position: 'top-center',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      })
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.message || 'An unexpected error occurred'
+      toast.error(`${errorMessage}`, {
+        position: 'top-center',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      })
+    },
+  })
+  const onSubmit = (data: FormValue) => {
+    // Function to strip HTML tags
+    const stripHtmlTags = (html: string): string => {
+      const doc = new DOMParser().parseFromString(html, 'text/html')
+      return doc.body.textContent || ''
     }
-  }, [descriptionValue, setValue])
 
-  const onSubmit = (value: FormValue) => {
-    console.log('Submitted value: ', value)
+    const descriptionPlainText = stripHtmlTags(data.description)
+
+    console.log('Form data:', {
+      ...data,
+      description: descriptionPlainText,
+    })
+
+    createTask({
+      ...data,
+      description: descriptionPlainText,
+    })
   }
-
   const handleHoursChange = (value: number) => {
     setHoursSpent(value)
   }
@@ -550,6 +586,7 @@ const Navbar: React.FC = () => {
                         render={({ field }) => (
                           <InputNumber
                             {...field}
+                            defaultValue={1}
                             status={errors.originalEstimate ? 'error' : ''}
                             style={{ width: '100%' }}
                             name="originalEstimate"
@@ -572,6 +609,7 @@ const Navbar: React.FC = () => {
                         render={({ field }) => (
                           <InputNumber
                             {...field}
+                            defaultValue={1}
                             status={errors.timeTrackingSpent ? 'error' : ''}
                             style={{ width: '100%' }}
                             name="timeTrackingSpent"
@@ -595,17 +633,18 @@ const Navbar: React.FC = () => {
                     <Controller
                       name="description"
                       control={control}
-                      render={({ field }) => (
+                      render={({ field: { onChange, onBlur, value } }) => (
                         <Editor
-                          {...field}
                           apiKey="vrdoer2sv642y76nwqxuds28hfp3zk5z00ohhlsi2t520aku"
+                          value={value}
                           onEditorChange={(content) => {
-                            field.onChange(content)
+                            onChange(content)
                           }}
+                          onBlur={onBlur}
                         />
                       )}
                     />
-                    {errors.description && <span>{errors.description.message}</span>}
+                    {errors.description && <p className="text-xs text-red-600">{errors.description.message}</p>}
                   </div>
                 </div>
                 <div className="my-4">
@@ -626,6 +665,7 @@ const Navbar: React.FC = () => {
           </div>
         </div>
       </header>
+      <ToastContainer position="top-center" autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="light" />
     </div>
   )
 }
