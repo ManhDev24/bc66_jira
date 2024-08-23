@@ -11,7 +11,7 @@ import {
   Typography,
 } from "antd";
 import Title from "antd/es/typography/Title";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { AudioOutlined, SearchOutlined } from "@ant-design/icons";
 import { Input, Space } from "antd";
 import type { GetProps, MenuProps } from "antd";
@@ -28,6 +28,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import Swal from "sweetalert2";
 import fetcher from "../../apis/fetcher";
+import { getTaskId } from "../../redux/slices/task_slices";
 // import { forEach } from 'lodash';
 const ProjectList: React.FC = () => {
   const navigate = useNavigate();
@@ -94,6 +95,21 @@ const ProjectList: React.FC = () => {
       title: "Project Name",
       key: "projectName",
       dataIndex: "projectName",
+      render: (projectName: any, record: any) => {
+        return (
+          <Link
+            className="text-decoration-none"
+            to={`/projects/${record.id}/board`}
+            onClick={() => {
+              dispatch(
+                getTaskId({ id: record.id, projectName: record.projectName })
+              );
+            }}
+          >
+            {projectName}
+          </Link>
+        );
+      },
     },
     {
       title: "Category Name",
@@ -157,7 +173,7 @@ const ProjectList: React.FC = () => {
       },
     },
   ];
-  
+
   if (!isLoading && error) {
     return <div>Something went wrong</div>;
   }
@@ -166,50 +182,46 @@ const ProjectList: React.FC = () => {
     const fetchProjects = async () => {
       const projects = await projectApi.getAllProject(currentPage); // Thay thế bằng cách lấy dữ liệu của bạn
       projectRef.current = projects;
-      console.log(projectRef.current
-      );
+      console.log(projectRef.current);
     };
-    
+
     fetchProjects();
   }, []);
-    const handleSearchProject = (e) => {
-      const value = (searchRef.current?.input?.value || "")
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase();
-        console.log('Giá trị tìm kiếm:', value);
-      
+  const handleSearchProject = (e) => {
+    const value = (searchRef.current?.input?.value || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+    console.log("Giá trị tìm kiếm:", value);
 
-      const clonedProjects = [...projectRef.current];
-      let foundProject = [];
+    const clonedProjects = [...projectRef.current];
+    let foundProject = [];
 
-      clonedProjects.forEach((project) => {
-        const name = project.projectName || "";
+    clonedProjects.forEach((project) => {
+      const name = project.projectName || "";
 
-        if (
-          typeof name === "string" &&
-          name
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .toLowerCase()
-            .includes(value)
-        ) {
-          foundProject.push(project);
-          
-        }
-      });
-      console.log('Dự án đã tìm thấy:', foundProject);
-      setFilteredProject([...foundProject]);
-      console.log('Dự án hiện tại:', projectRef.current);
-    };
-    
-    useEffect(() => {
-      const dataSource = filteredProject.length > 0 ? filteredProject : data;
-      setDataSource(dataSource);
+      if (
+        typeof name === "string" &&
+        name
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+          .includes(value)
+      ) {
+        foundProject.push(project);
+      }
+    });
+    console.log("Dự án đã tìm thấy:", foundProject);
+    setFilteredProject([...foundProject]);
+    console.log("Dự án hiện tại:", projectRef.current);
+  };
 
-    }, [filteredProject,data]);
+  useEffect(() => {
+    const dataSource = filteredProject.length > 0 ? filteredProject : data;
+    setDataSource(dataSource);
+  }, [filteredProject, data]);
   // drop down
-    
+
   return (
     <div className="container pb-6 pt_6">
       <div className="mb-3 flex justify-between justify-center align-middle">

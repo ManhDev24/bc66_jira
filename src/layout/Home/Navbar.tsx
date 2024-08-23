@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { PATH } from '../../routes/path'
 import { Avatar, Button, Drawer, Flex, Menu, Spin, Switch, Typography } from 'antd'
@@ -10,17 +10,41 @@ import { Select } from 'antd'
 import type { SelectProps } from 'antd'
 import { Input, InputNumber, Slider } from 'antd'
 import debounce from 'lodash/debounce'
+import * as yup from 'yup'
 import type { InputNumberProps } from 'antd'
 import { Editor } from '@tinymce/tinymce-react'
 import { useAppDispatch, useAppSelector } from '../../redux/hook'
 import { signOut } from '../../redux/slices/user_slice'
 import { setLocalStorage } from '../../utils'
 import logo from '../../../public/ico.png'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { projectApi } from '../../apis/projects.api'
+import { ProjectData } from '../../interface/projectListInter'
+import { Controller, useForm } from 'react-hook-form'
+import { taskApi } from '../../apis/task.api'
+import { taskPriority, taskStatus, taskType, taskUser } from '../../interface/task.interface'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+
 export interface DebounceSelectProps<ValueType = any> extends Omit<SelectProps<ValueType | ValueType[]>, 'options' | 'children'> {
   fetchOptions: (search: string) => Promise<ValueType[]>
   debounceTimeout?: number
 }
 
+interface FormValue {
+  listUserAsign: number[]
+  taskId: string
+  taskName: string
+  description: string
+  statusId: string
+  originalEstimate: number
+  timeTrackingSpent: number
+  timeTrackingRemaining: number
+  projectId: number
+  typeId: number
+  priorityId: number
+}
 // function DebounceSelect<
 //   ValueType extends {
 //     key?: string
@@ -60,7 +84,11 @@ interface UserValue {
   label: string
   value: string
 }
+const schema = yup.object().shape({
+  taskName: yup.string().required('Task name is required'),
 
+  description: yup.string().required('Description is required'),
+})
 async function fetchUserList(username: string): Promise<UserValue[]> {
   console.log('fetching user', username)
 
@@ -76,8 +104,96 @@ async function fetchUserList(username: string): Promise<UserValue[]> {
 const Navbar: React.FC = () => {
   // FETCH LIST USER
   const [value, setValue] = useState<UserValue[]>([])
-  // Drawer
+  const [hoursSpent, setHoursSpent] = useState(1)
+  const [originalEstimate, setOriginalEstimate] = useState(3)
+
   const [open, setOpen] = useState(false)
+
+  const handleOriginalEstimateChange = (value: number) => {
+    setOriginalEstimate(value)
+    if (hoursSpent > value) {
+      setHoursSpent(value)
+    }
+  }
+  const {
+    handleSubmit,
+    control,
+    setValue: setFormValue,
+    watch,
+    formState: { errors },
+  } = useForm<FormValue>({
+    defaultValues: {
+      projectId: 0,
+      taskName: '',
+      statusId: '',
+      priorityId: 0,
+      typeId: 0,
+      listUserAsign: [],
+      originalEstimate: 0,
+      timeTrackingSpent: 0,
+      description: '',
+    },
+    resolver: yupResolver(schema),
+    criteriaMode: 'all',
+    mode: 'onBlur',
+    shouldFocusError: false,
+  })
+
+  const { mutate: createTask } = useMutation({
+    mutationFn: (payload: FormValue) => taskApi.createTask(payload),
+    onSuccess: () => {
+      toast.success('Task created successfully', {
+        position: 'top-center',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      })
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.message || 'An unexpected error occurred'
+      toast.error(`${errorMessage}`, {
+        position: 'top-center',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      })
+    },
+  })
+  const onSubmit = (data: FormValue) => {
+    // Function to strip HTML tags
+    const stripHtmlTags = (html: string): string => {
+      const doc = new DOMParser().parseFromString(html, 'text/html')
+      return doc.body.textContent || ''
+    }
+
+    const descriptionPlainText = stripHtmlTags(data.description)
+
+    console.log('Form data:', {
+      ...data,
+      description: descriptionPlainText,
+    })
+
+    createTask({
+      ...data,
+      description: descriptionPlainText,
+    })
+  }
+  const handleHoursChange = (value: number) => {
+    setHoursSpent(value)
+  }
+
+  const handleSliderChange = (value: number) => {
+    setHoursSpent(value)
+  }
+
   const showDrawer = () => {
     setOpen(true)
   }
@@ -108,12 +224,69 @@ const Navbar: React.FC = () => {
   // select project drawer
   type LabelRender = SelectProps['labelRender']
 
-  const options = [
-    { label: 'gold', value: 'gold' },
-    { label: 'lime', value: 'lime' },
-    { label: 'green', value: 'green' },
-    { label: 'cyan', value: 'cyan' },
-  ]
+  //
+  const [selectedIds, setSelectedIds] = useState<string>('')
+
+  const handleSelectionChange = (selected: string) => {
+    setSelectedIds(selected)
+    console.log('Selected value:', value)
+  }
+  const { data: ProjectName } = useQuery({
+    queryKey: ['project-list'],
+    queryFn: () =>
+      projectApi.getAllProject({
+        page: 1,
+        pageSize: 10,
+      }),
+  })
+  const { data: taskStatus } = useQuery({
+    queryKey: ['project-status'],
+    queryFn: () => taskApi.getAllStatus(),
+  })
+  const { data: taskPriority } = useQuery({
+    queryKey: ['task-priority'],
+    queryFn: () => taskApi.getPriority(),
+  })
+  const { data: taskType } = useQuery({
+    queryKey: ['task-type'],
+    queryFn: () => taskApi.getTaskType(),
+  })
+
+  const { data: userByProjectId } = useQuery({
+    queryKey: ['user-by-project', selectedIds],
+    queryFn: () => taskApi.getUserByProjectId(selectedIds),
+    enabled: !!selectedIds,
+  })
+  const optionsProject = ProjectName?.map((items: ProjectData) => {
+    return {
+      label: items.alias,
+      value: items.id,
+    }
+  })
+  const optionUser = userByProjectId?.map((items: taskUser) => {
+    return {
+      label: items.name,
+      value: items.userId,
+    }
+  })
+  const optionStatus = taskStatus?.map((items: taskStatus) => {
+    return {
+      label: items.statusName,
+      value: items.statusId,
+    }
+  })
+  const optionPriority = taskPriority?.map((items: taskPriority) => {
+    return {
+      label: items.alias,
+      value: items.priorityId,
+    }
+  })
+  const optionType = taskType?.map((items: taskType) => {
+    return {
+      label: items.taskType,
+      value: items.id,
+    }
+  })
   const labelRender: LabelRender = (props) => {
     const { label, value } = props
 
@@ -305,28 +478,44 @@ const Navbar: React.FC = () => {
             {/* create avatar */}
 
             <Drawer title="Create Task" onClose={onClose} open={open}>
-              <form className="container">
+              <form onSubmit={handleSubmit(onSubmit)} className="container">
                 <div className="w-full">
-                  <p className="mb-0">Project </p>
-                  <Select className="my-1" labelRender={labelRender} defaultValue="1" style={{ width: '100%' }} options={options} />
+                  <p className="mb-0">Project</p>
+                  <Controller
+                    name="projectId"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        className="my-1"
+                        defaultValue={'Select Project'}
+                        status={errors.projectId ? 'error' : ''}
+                        onChange={(value) => {
+                          field.onChange(value)
+                          handleSelectionChange(value as any)
+                        }}
+                        value={field.value || ''}
+                        style={{ width: '100%' }}
+                        options={optionsProject}
+                      />
+                    )}
+                  />
+                  {errors.projectId && <p className="text-xs text-red-600">{errors.projectId.message}</p>}
                   <span className="italic font-medium text-sm mt-2 ">* You can only create tasks of your own projects!</span>
                 </div>
                 <div className="mt-3">
                   <p className="mb-0">Task name</p>
-                  <Input placeholder="Task Name" />
+                  <Controller name="taskName" control={control} render={({ field }) => <Input {...field} status={errors.taskName ? 'error' : ''} placeholder="Task Name" />} />
+                  {errors.taskName && <p className="text-xs text-red-600">{errors.taskName.message}</p>}
                 </div>
                 <div className="w-full mt-3">
                   <p>Status </p>
                   <Space wrap className="d-block_choose">
-                    <Select
-                      defaultValue="lucy"
-                      style={{ width: '100%' }}
-                      onChange={handleChange}
-                      options={[
-                        { value: 'jack', label: 'Jack' },
-                        { value: 'lucy', label: 'Lucy' },
-                        { value: 'Yiminghe', label: 'yiminghe' },
-                      ]}
+                    <Controller
+                      name="statusId"
+                      control={control}
+                      render={({ field }) => (
+                        <Select status={errors.statusId ? 'error' : ''} defaultValue="Choose status" style={{ width: '100%' }} onChange={(value) => field.onChange(value)} options={optionStatus} />
+                      )}
                     />
                   </Space>
                 </div>
@@ -334,105 +523,139 @@ const Navbar: React.FC = () => {
                   <div className="w-5/12 mt-3 ">
                     <p>Priority </p>
                     <Space wrap name="priorityId" style={{ width: '100%' }} className="d-block_choose">
-                      <Select
-                        defaultValue="lucy"
-                        style={{ width: '100%' }}
-                        onChange={handleChange}
-                        options={[
-                          { value: 'jack', label: 'Jack' },
-                          { value: 'lucy', label: 'Lucy' },
-                          { value: 'Yiminghe', label: 'yiminghe' },
-                          {
-                            value: 'disabled',
-                            label: 'Disabled',
-                            disabled: true,
-                          },
-                        ]}
+                      <Controller
+                        name="priorityId"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            status={errors.priorityId ? 'error' : ''}
+                            onChange={(value) => field.onChange(value)}
+                            defaultValue="Choose priority"
+                            style={{ width: '100%' }}
+                            options={optionPriority}
+                          />
+                        )}
                       />
                     </Space>
+                    {errors.priorityId && <p className="text-xs text-red-600">{errors.priorityId.message}</p>}
                   </div>
                   <div className="w-5/12 mt-3 ">
                     <p>Task Type</p>
                     <Space wrap name="typeId" style={{ width: '100%' }} className="d-block_choose">
-                      <Select
-                        defaultValue="lucy"
-                        style={{ width: '100%' }}
-                        onChange={handleChange}
-                        options={[
-                          { value: 'jack', label: 'Jack' },
-                          { value: 'lucy', label: 'Lucy' },
-                          { value: 'Yiminghe', label: 'yiminghe' },
-                          {
-                            value: 'disabled',
-                            label: 'Disabled',
-                            disabled: true,
-                          },
-                        ]}
+                      <Controller
+                        name="typeId"
+                        control={control}
+                        render={({ field }) => (
+                          <Select status={errors.typeId ? 'error' : ''} defaultValue="choose type" style={{ width: '100%' }} onChange={(value) => field.onChange(value)} options={optionType} />
+                        )}
                       />
                     </Space>
+                    {errors.typeId && <p className="text-xs text-red-600">{errors.typeId.message}</p>}
                   </div>
                 </div>
                 {/* fetch list user */}
                 <div className="w-full mt-3">
                   <p>Assigners</p>
-                  <DebounceSelect
-                    mode="multiple"
-                    value={value}
-                    name="listUserAsign"
-                    placeholder="Select users"
-                    fetchOptions={fetchUserList}
-                    onChange={(newValue) => {
-                      setValue(newValue as UserValue[])
-                    }}
-                    style={{ width: '100%' }}
-                  />
+                  <Space wrap className="d-block_choose">
+                    <Controller
+                      name="listUserAsign"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          status={errors.listUserAsign ? 'error' : ''}
+                          mode="multiple"
+                          allowClear
+                          style={{ width: '100%' }}
+                          placeholder="Please select"
+                          onChange={(value) => field.onChange(value)}
+                          options={optionUser}
+                        />
+                      )}
+                    />
+                  </Space>
+                  {errors.listUserAsign && <p className="text-xs text-red-600">{errors.listUserAsign.message}</p>}
                 </div>
                 <div className="w-full mt-3">
                   <p>Time Tracking</p>
                   <div className="w-full flex justify-between ">
                     <div className="w-5/12 mt-3 ">
-                      <p>Hours spent </p>
-                      <InputNumber style={{ width: '100%' }} name="originalEstimate" min={1} max={10} defaultValue={3} onChange={onChange} />
+                      <p>Total Estimated Hours</p>
+                      <Controller
+                        name="originalEstimate"
+                        control={control}
+                        render={({ field }) => (
+                          <InputNumber
+                            {...field}
+                            defaultValue={1}
+                            status={errors.originalEstimate ? 'error' : ''}
+                            style={{ width: '100%' }}
+                            name="originalEstimate"
+                            min={1}
+                            value={originalEstimate}
+                            onChange={(value) => {
+                              field.onChange(value)
+                              handleOriginalEstimateChange(value as any)
+                            }}
+                          />
+                        )}
+                      />
+                      {errors.originalEstimate && <p className="text-xs text-red-600">{errors.originalEstimate.message}</p>}
                     </div>
                     <div className="w-5/12 mt-3 ">
-                      <p>Hours spent </p>
-                      <InputNumber style={{ width: '100%' }} name="timeTrackingSpent" min={1} max={10} defaultValue={3} onChange={onChange} />
+                      <p>Hours spent</p>
+                      <Controller
+                        name="timeTrackingSpent"
+                        control={control}
+                        render={({ field }) => (
+                          <InputNumber
+                            {...field}
+                            defaultValue={1}
+                            status={errors.timeTrackingSpent ? 'error' : ''}
+                            style={{ width: '100%' }}
+                            name="timeTrackingSpent"
+                            min={1}
+                            max={originalEstimate}
+                            value={hoursSpent}
+                            onChange={(value) => {
+                              field.onChange(value)
+                              handleHoursChange(value as any)
+                            }}
+                          />
+                        )}
+                      />
+                      {errors.timeTrackingSpent && <p className="text-xs text-red-600">{errors.timeTrackingSpent.message}</p>}
                     </div>
-                  </div>
-                  <div className="w-full">
-                    <Slider defaultValue={30} disabled={disabled} />
-                    Disabled: <Switch size="small" checked={disabled} onChange={onChange1} />
                   </div>
                 </div>
                 <div>
                   <p className="mt-3">Description</p>
                   <div className="relative">
-                    <Editor
-                      apiKey="vrdoer2sv642y76nwqxuds28hfp3zk5z00ohhlsi2t520aku"
-                      init={{
-                        plugins:
-                          'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate ai mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown',
-                        toolbar:
-                          'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
-                        tinycomments_mode: 'embedded',
-                        tinycomments_author: 'Author name',
-                        mergetags_list: [
-                          { value: 'First.Name', title: 'First Name' },
-                          { value: 'Email', title: 'Email' },
-                        ],
-                        ai_request: (request, respondWith) => respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
-                      }}
-                      initialValue="Welcome to TinyMCE!"
+                    <Controller
+                      name="description"
+                      control={control}
+                      render={({ field: { onChange, onBlur, value } }) => (
+                        <Editor
+                          apiKey="vrdoer2sv642y76nwqxuds28hfp3zk5z00ohhlsi2t520aku"
+                          value={value}
+                          onEditorChange={(content) => {
+                            onChange(content)
+                          }}
+                          onBlur={onBlur}
+                        />
+                      )}
                     />
+                    {errors.description && <p className="text-xs text-red-600">{errors.description.message}</p>}
                   </div>
                 </div>
+                <div className="my-4">
+                  <Flex gap="small" wrap>
+                    <Button htmlType="submit" type="primary">
+                      Submit
+                    </Button>
+                    <Button type="dashed">Cancel</Button>
+                  </Flex>
+                </div>
               </form>
-              <div className="my-4">
-                <Flex gap="small" wrap>
-                  <Button type="primary">Submit</Button>
-                  <Button type="dashed">Cancel</Button>
-                </Flex>
-              </div>
             </Drawer>
           </nav>
           <div>
@@ -442,6 +665,7 @@ const Navbar: React.FC = () => {
           </div>
         </div>
       </header>
+      <ToastContainer position="top-center" autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="light" />
     </div>
   )
 }

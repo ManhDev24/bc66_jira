@@ -1,39 +1,39 @@
-
 export interface Project {
-    members:      Member[];
-    creator:      Creator;
-    id:           number;
-    projectName:  string;
-    description:  string;
-    categoryId:   number;
-    categoryName: CategoryName;
-    alias:        string;
-    deleted:      boolean;
+  members: Member[]
+  creator: Creator
+  id: number
+  projectName: string
+  description: string
+  categoryId: number
+  categoryName: CategoryName
+  alias: string
+  deleted: boolean
 }
 export enum CategoryName {
-    DựÁnDiĐộng = "Dự án di động",
-    DựÁnPhầnMềm = "Dự án phần mềm",
-    DựÁnWeb = "Dự án web",
+  DựÁnDiĐộng = 'Dự án di động',
+  DựÁnPhầnMềm = 'Dự án phần mềm',
+  DựÁnWeb = 'Dự án web',
 }
 export interface Creator {
-    id:   number;
-    name: string;
+  id: number
+  name: string
 }
 export interface Member {
-    userId: number;
-    name:   string;
-    avatar: string;
+  userId: number
+  name: string
+  avatar: string
 }
 export interface DataListProject {
-    currentPage: number
-    count: number
-    totalPages: number
-    totalCount: number
-    items: Project[]
+  currentPage: number
+  count: number
+  totalPages: number
+  totalCount: number
+  items: Project[]
 }
 export interface ProjectData {
-    projectsName: string
-    categoryId: number
-    description: string
-    alias:string;
-  }
+  id: string
+  projectsName: string
+  categoryId: number
+  description: string
+  alias: string
+}

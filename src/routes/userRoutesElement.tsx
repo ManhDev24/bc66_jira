@@ -9,6 +9,7 @@ import User from '../layout/Users/User'
 import { ProfileUser } from '../layout/Profile'
 import { AddProject } from '../modules/Project/AddProjects'
 import { EditProject } from '../modules/Project/EditProjects'
+import TaskBoard from '../modules/Task/TaskBoard'
 const RejectedRoutes = () => {
   const { currentUser } = useAppSelector((state) => state.user)
   if (currentUser !== null) {
@@ -42,6 +43,10 @@ const useRoutesElement = () => {
     {
       path:PATH.EDIT,
       element:<EditProject/>
+    },
+    {
+      path:PATH.TASK,
+      element:<TaskBoard/>
     },
     {
       path: '/',

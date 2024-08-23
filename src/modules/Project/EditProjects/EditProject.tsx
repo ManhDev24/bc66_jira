@@ -94,9 +94,9 @@ const EditProject = () => {
           <Link to="/projects">Projects</Link>
         </Breadcrumb.Item>
         <Breadcrumb.Item>
-          {/* <Link to={`/projects/${projectId}/board`}>
+          <Link to={`/projects/${projectId}/board`}>
             {projectDetail?.projectName}
-          </Link> */}
+          </Link>
         </Breadcrumb.Item>
         <Breadcrumb.Item>Project settings</Breadcrumb.Item>
       </Breadcrumb>

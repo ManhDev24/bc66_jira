@@ -7,10 +7,8 @@ import store from './redux/store.ts'
 import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { createBrowserHistory } from "history";
-import {
-  unstable_HistoryRouter as HistoryRouter,
-} from "react-router-dom";
+import { createBrowserHistory } from 'history'
+import { unstable_HistoryRouter as HistoryRouter } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 
 const queryClient = new QueryClient({
@@ -23,18 +21,16 @@ const queryClient = new QueryClient({
     },
   },
 })
-export const history = createBrowserHistory();
-const root = ReactDOM.createRoot(document.getElementById("root"));
+export const history = createBrowserHistory()
+const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
-  
-    <Provider store={store}>
-      <BrowserRouter history={history}>
-        <QueryClientProvider client={queryClient}>
-          <App />
-          <ReactQueryDevtools initialIsOpen={true} />
-          <ToastContainer />
-        </QueryClientProvider>
-      </BrowserRouter>
-    </Provider>
-  
+  <Provider store={store}>
+    <BrowserRouter history={history}>
+      <QueryClientProvider client={queryClient}>
+        <App />
+        <ReactQueryDevtools initialIsOpen={true} />
+        <ToastContainer />
+      </QueryClientProvider>
+    </BrowserRouter>
+  </Provider>
 )
