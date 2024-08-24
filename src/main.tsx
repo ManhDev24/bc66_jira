@@ -8,8 +8,6 @@ import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { createBrowserHistory } from 'history'
-import { unstable_HistoryRouter as HistoryRouter } from 'react-router-dom'
-import { ToastContainer } from 'react-toastify'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,7 +27,6 @@ root.render(
       <QueryClientProvider client={queryClient}>
         <App />
         <ReactQueryDevtools initialIsOpen={true} />
-        <ToastContainer />
       </QueryClientProvider>
     </BrowserRouter>
   </Provider>

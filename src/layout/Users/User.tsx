@@ -138,7 +138,7 @@ const User = () => {
 
   const pagination = {
     pageSize: 10,
-    showSizeChanger: true,
+    showSizeChanger: false,
   }
 
   const columns: TableProps<DataType>['columns'] = [
