@@ -11,6 +11,8 @@ import { useAppDispatch } from '../../../redux/hook'
 import { setUser } from '../../../redux/slices/user_slice'
 import { toast } from 'react-toastify'
 import { LoadingOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 interface FormValues {
   email: string
@@ -111,6 +113,7 @@ const Login = () => {
           <span className="text-blue-700 font-medium cursor-pointer"> Register</span>
         </a>
       </Typography>
+      <ToastContainer />
     </div>
   )
 }
