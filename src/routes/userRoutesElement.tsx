@@ -13,39 +13,58 @@ import TaskBoard from '../modules/Task/TaskBoard'
 
 const RejectedRoutes = () => {
   const { currentUser } = useAppSelector((state) => state.user)
-  if (currentUser) {
-    return <Navigate to={PATH.HOME} replace />
+  if (currentUser !== null) {
+    return <Navigate to={PATH.HOME} />
   }
   return <Outlet />
 }
 
 const ProtectedRoutes = () => {
   const { currentUser } = useAppSelector((state) => state.user)
-  if (!currentUser) {
-    return <Navigate to={PATH.LOGIN} replace />
+  if (currentUser === null) {
+    return <Navigate to={PATH.LOGIN} />
   }
   return <Outlet />
 }
 
 const useRoutesElement = () => {
   const routes = useRoutes([
-    // Routes for authenticated users
     {
       path: '/',
       element: <ProtectedRoutes />,
       children: [
-        { path: PATH.HOME, element: <HomeLayout /> },
-        { path: PATH.USER, element: <User /> },
-        { path: PATH.PROFILE, element: <ProfileUser /> },
-        { path: 'projects/new', element: <AddProject /> },
-        { path: PATH.EDIT, element: <EditProject /> },
-        { path: PATH.TASK, element: <TaskBoard /> },
-        // Any other protected routes can be added here
+        {
+          path: '',
+          element: <Navigate to={PATH.HOME} />,
+        },
+        {
+          path: PATH.PROJECT,
+          element: <HomeLayout />,
+        },
+        {
+          path: PATH.NEW,
+          element: <AddProject />,
+        },
+        {
+          path: PATH.EDIT,
+          element: <EditProject />,
+        },
+        {
+          path: PATH.TASK,
+          element: <TaskBoard />,
+        },
+        {
+          path: PATH.USER,
+          element: <User />,
+        },
+        {
+          path: PATH.PROFILE,
+          element: <ProfileUser />,
+        },
       ],
     },
-    // Routes for non-authenticated users
     {
-      path: 'auth',
+      path: PATH.AUTH,
       element: <RejectedRoutes />,
       children: [
         {
@@ -66,10 +85,11 @@ const useRoutesElement = () => {
         },
       ],
     },
-    // Fallback for unknown routes
-    { path: '*', element: <Navigate to={PATH.HOME} replace /> },
+    {
+      path: '*',
+      element: <Navigate to={PATH.HOME} />,
+    },
   ])
-
   return routes
 }
 
