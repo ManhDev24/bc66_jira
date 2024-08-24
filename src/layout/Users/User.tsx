@@ -1,4 +1,4 @@
-import { Button, Col, Input, Modal, Row, Space, Spin, Table, TableProps } from 'antd'
+import { Button, Col, Input, Modal, Row, Space, Spin, Table, TableProps, Popconfirm } from 'antd'
 import React, { useEffect, useState } from 'react'
 import Navbar from '../Home/Navbar'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -185,9 +185,11 @@ const User = () => {
           <Button icon={<EditOutlined />} onClick={() => handleEdit(record.userId)} type="link">
             Edit
           </Button>
-          <Button icon={<DeleteOutlined />} onClick={() => handleDelete(record.userId)} type="link" danger>
-            Delete
-          </Button>
+          <Popconfirm title="Are you sure you want to remove user?" onConfirm={() => handleDelete(record.userId)} okText="Yes" cancelText="No">
+            <Button icon={<DeleteOutlined />} type="link" danger>
+              Delete
+            </Button>
+          </Popconfirm>
         </Space>
       ),
     },
@@ -234,6 +236,7 @@ const User = () => {
   const { mutate: handleDeleteUser, isLoading: isDeleting } = useMutation({
     mutationFn: (id: string) => userAPI.deleteUser(id),
     onSuccess: () => {
+      toast.success('Delete successful!!')
       queryClient.refetchQueries({
         queryKey: ['list-user'],
         type: 'active',

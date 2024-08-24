@@ -105,7 +105,7 @@ const Navbar: React.FC = () => {
   // FETCH LIST USER
   const [value, setValue] = useState<UserValue[]>([])
   const [hoursSpent, setHoursSpent] = useState(1)
-  const [originalEstimate, setOriginalEstimate] = useState(3)
+  const [originalEstimate, setOriginalEstimate] = useState(1)
 
   const [open, setOpen] = useState(false)
 
@@ -118,6 +118,7 @@ const Navbar: React.FC = () => {
   const {
     handleSubmit,
     control,
+    reset,
     setValue: setFormValue,
     watch,
     formState: { errors },
@@ -195,6 +196,7 @@ const Navbar: React.FC = () => {
   }
 
   const showDrawer = () => {
+    reset()
     setOpen(true)
   }
 
