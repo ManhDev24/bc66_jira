@@ -30,11 +30,22 @@ import Swal from "sweetalert2";
 import fetcher from "../../apis/fetcher";
 import { getTaskId } from "../../redux/slices/task_slices";
 // import { forEach } from 'lodash';
+interface Project {
+  id: number;
+  name: string;
+  // Thêm các thuộc tính khác
+}
+
+interface DataListProjectItem {
+  items: Project[];
+  totalCount: number; // Tổng số phần tử
+}
 const ProjectList: React.FC = () => {
   const navigate = useNavigate();
   type SearchProps = GetProps<typeof Input.Search>;
   const [filteredProject, setFilteredProject] = useState([]);
   const { projectList } = useSelector((state: any) => state.projectReducer);
+  const [totalItems, setTotalItems] = useState(0);
   const projectRef = useRef([]);
   const searchRef = useRef(null);
 
@@ -251,23 +262,9 @@ const ProjectList: React.FC = () => {
           rowKey="id"
           columns={columns}
           dataSource={dataSource}
-          pagination={false}
+          pagination={true}
           loading={isLoading}
         />
-        <div className="flex justify-end mt-10">
-          <Pagination
-            defaultCurrent={currentPage}
-            total={totalPages}
-            onChange={(page: number, pSize: number) => {
-              setCurrentPage(page);
-              setCurrentPageSize(pageSize);
-              if (pSize !== pageSize) {
-                setCurrentPageSize(pageSize);
-              }
-            }}
-            showSizeChanger={false}
-          />
-        </div>
       </div>
     </div>
   );

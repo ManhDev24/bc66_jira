@@ -3,6 +3,7 @@ import {
   Avatar,
   Breadcrumb,
   Col,
+  List,
   Modal,
   Row,
   Select,
@@ -29,16 +30,23 @@ import {
   updateTaskStatusApi,
 } from "../../redux/slices/task_slices";
 
-import './index.scss'
+import "./index.scss";
 import Navbar from "../../layout/Home/Navbar";
-const ProjectManagement = () => {
+import { getAllUserApi } from "../../redux/slices/user_slice";
+import axios from "axios";
+import { BASE_URL } from "../../constant/urlConfig";
+import fetcher from "../../apis/fetcher";
+import { ProjectData } from "../../interface/projectListInter";
+
+const ProjectManagement: React.FC = () => {
   const params = useParams();
   const projectId = parseInt(params.id);
-  console.log(projectId)
   const dispatch = useDispatch();
-  const { projectDetail, projectError } = useSelector(
+  const { projectDetail, projectError, projectMembers } = useSelector(
     (state) => state.projectReducer
   );
+
+  const { userList } = useSelector((state) => state.userReducer);
   const { taskTypes, taskError } = useSelector((state) => state.taskReducer);
   const [clonedProjectDetail, setClonedProjectDetail] = useState(null);
   const [showNewTaskTextarea, setShowNewTaskTextarea] = useState(false);
@@ -63,21 +71,8 @@ const ProjectManagement = () => {
   });
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await dispatch(getProjectDetailApi(projectId));
-        await dispatch(getAllTaskTypesApi());
-      } catch (error) {
-        if (error.response) {
-          console.error('API Error Response:', error.response);
-        } else {
-          console.error('API Error:', error.message);
-        }
-      }
-    };
-  
-    fetchData();
-  
+    dispatch(getProjectDetailApi(projectId));
+    dispatch(getAllTaskTypesApi());
     return () => {
       dispatch(setProjectDetailNullAction(null));
       dispatch(setTaskErrorAction(null));
@@ -133,19 +128,6 @@ const ProjectManagement = () => {
         source.index
       ],
     };
-
-    // // xóa tại source.index 1 phần tử
-    // clonedProject.lstTask[source.droppableId - 1].lstTaskDeTail.splice(
-    //   source.index,
-    //   1
-    // );
-
-    // // tại destination.index, thêm phần tử draggedItem
-    // clonedProject.lstTask[destination.droppableId - 1].lstTaskDeTail.splice(
-    //   destination.index,
-    //   0,
-    //   draggedItem
-    // );
 
     setClonedProjectDetail(clonedProject);
 
@@ -215,215 +197,280 @@ const ProjectManagement = () => {
     dispatch(getProjectDetailApi(projectId));
   };
 
-  // check if the project no longers exist
-  if (projectError && projectError === "Project is not found") {
-    return <PageNotFound />;
-  }
+  const openModal = () => {
+    setShowAddMembersModal(true);
+  };
+
+  const closeModal = () => {
+    setShowAddMembersModal(false);
+  };
+  useEffect(() => {
+    console.log("showAddMembersModal:", showAddMembersModal);
+  }, [showAddMembersModal]);
+
+  useEffect(() => {}, []);
   return (
     <div className="p-3 container ">
-     <Navbar></Navbar> 
-     <div className="pt-10">
-     <Breadcrumb className="mb-4">
-        <Breadcrumb.Item>
-          <Link to="/projects">Projects</Link>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item>{clonedProjectDetail?.projectName}</Breadcrumb.Item>
-      </Breadcrumb>
-
-      
-
-      <Row gutter={16}>
-        <DragDropContext onDragEnd={handleDragEnd}>
-          {clonedProjectDetail?.lstTask?.map((listTaskItem) => {
-            return (
-              <Col
-                xs={{ span: 24 }}
-                sm={{ span: 12 }}
-                lg={{ span: 6 }}
-                key={listTaskItem.statusId}
-                className="mb-4"
+      <Navbar></Navbar>
+      <div className="pt-10">
+        <Breadcrumb className="mb-4">
+          <Breadcrumb.Item>
+            <Link to="/projects">Projects</Link>
+          </Breadcrumb.Item>
+          <Breadcrumb.Item>{clonedProjectDetail?.projectName}</Breadcrumb.Item>
+        </Breadcrumb>
+        <div className="flex">
+          <div className="w-1/4">
+            <h3 className="typography">Board</h3>
+          </div>
+          <div className="w-3/4">
+            <span className="ant-avatar ant-avatar-circle ant-avatar-image mr-1">
+              {!!projectDetail?.members.length && (
+                <Typography.Text strong className="mr-4">
+                  Members{" "}
+                </Typography.Text>
+              )}
+              {projectDetail?.members.map((member) => {
+                return (
+                  <Tooltip
+                    key={member.userId}
+                    title={member.name}
+                    placement="top"
+                  >
+                    <Avatar
+                      src={member.avatar}
+                      alt={member.name}
+                      className="mr-1"
+                    />
+                  </Tooltip>
+                );
+              })}
+            </span>
+            <button
+              type="button"
+              className="ant-btn ant-btn-circle_plus ant-btn_plus ant-btn-icon-only hover:border-blue-600 focus:border-blue-600 hover:text-blue-600 focus:text-blue-600"
+              ant-click-animating-without-extra-node="false"
+              onClick={openModal}
+            >
+              <span
+                role="img"
+                aria-label="plus"
+                className="anticon anticon-plus translate-plus"
               >
-                <div
-                  style={{
-                    backgroundColor: "#f4f5f7",
-                    padding: "8px",
-                    borderRadius: "6px",
-                  }}
+                <svg
+                  viewBox="64 64 896 896"
+                  focusable="false"
+                  data-icon="plus"
+                  width="1em"
+                  height="1em"
+                  fill="currentColor"
+                  aria-hidden="true"
                 >
-                  <div style={{ visibility: "hidden" }}>AAAAAA</div>
-                  <TaskListTitle title={listTaskItem.statusName} />
-                  <hr />
-                  <Droppable droppableId={listTaskItem.statusId}>
-                    {(provided) => {
-                      return (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.droppableProps}
-                        >
-                          {listTaskItem.lstTaskDeTail.map(
-                            (listTaskDetailItem, index) => {
-                              return (
-                                <TaskItem
-                                  key={listTaskDetailItem.taskId}
-                                  listTaskDetailItem={listTaskDetailItem}
-                                  index={index}
-                                  onClick={handleClickTaskItem(
-                                    listTaskDetailItem
-                                  )}
-                                />
-                              );
-                            }
-                          )}
+                  <defs>
+                    <style dangerouslySetInnerHTML={{ __html: "" }} />
+                  </defs>
+                  <path d="M482 152h60q8 0 8 8v704q0 8-8 8h-60q-8 0-8-8V160q0-8 8-8z" />
+                  <path d="M176 474h672q8 0 8 8v60q0 8-8 8H176q-8 0-8-8v-60q0-8 8-8z" />
+                </svg>
+              </span>
+            </button>
+          </div>
+        </div>
 
-                          {provided.placeholder}
-
-                          {listTaskItem.statusName === "BACKLOG" && (
-                            <div>
-                              {!showNewTaskTextarea && (
-                                <button
-                                  onClick={() => setShowNewTaskTextarea(true)}
-                                  className="btn btn-primary d-flex align-items-center mt-2"
-                                >
-                                  <PlusOutlined className="mr-1" />
-                                  <span className="ms-2">Create</span>
-                                </button>
-                              )}
-                              {showNewTaskTextarea && (
-                                <>
-                                  <div
-                                    className={`bg-white border-2 mt-1 rounded${
-                                      formik.errors.taskName
-                                        ? " border-red-500 focus:border-red-500"
-                                        : " border-blue-400 focus:border-blue-400"
-                                    }`}
-                                  >
-                                    <textarea
-                                      rows="2"
-                                      maxLength="255"
-                                      placeholder="What needs to be done?"
-                                      className="w-full pt-2 px-2 outline-none resize-none"
-                                      onKeyDown={handleKeyDownOnNewTaskTextarea}
-                                      autoFocus
-                                      name="taskName"
-                                      value={formik.values.taskName}
-                                      onChange={formik.handleChange}
-                                      onBlur={handleBlurNewTaskTextarea}
-                                      ref={newTaskRef}
-                                    ></textarea>
-
-                                    <Select
-                                      name="typeId"
-                                      value={formik.values.typeId}
-                                      onChange={(value) =>
-                                        formik.setFieldValue("typeId", value)
-                                      }
-                                      onClick={handleTaskTypeClick}
-                                      onDropdownVisibleChange={
-                                        handleTaskTypeDropdownVisibleChange
-                                      }
-                                      defaultValue={1}
-                                      bordered={false}
-                                      className="mb-1"
-                                      optionLabelProp="label"
-                                      dropdownMatchSelectWidth={false}
-                                      style={{ marginTop: "-8px" }}
-                                    >
-                                      {taskTypes.map((type) => {
-                                        return (
-                                          <Select.Option
-                                            key={type.id}
-                                            value={type.id}
-                                            label={
-                                              <div className="h-full flex items-center">
-                                                <Tooltip
-                                                  title={
-                                                    type.taskType
-                                                      .charAt(0)
-                                                      .toUpperCase() +
-                                                    type.taskType.slice(1)
-                                                  }
-                                                  placement="bottom"
-                                                >
-                                                  {type.id === 1 && (
-                                                    <BugOutlined
-                                                      style={{
-                                                        color: "red",
-                                                      }}
-                                                    />
-                                                  )}
-                                                  {type.id === 2 && (
-                                                    <CheckOutlined
-                                                      style={{
-                                                        color: "#4b92ff",
-                                                      }}
-                                                    />
-                                                  )}
-                                                </Tooltip>
-                                              </div>
-                                            }
-                                          >
-                                            <div className="flex justify-start items-center">
-                                              {type.id === 1 && (
-                                                <BugOutlined
-                                                  style={{ color: "red" }}
-                                                  className="me-2"
-                                                />
-                                              )}
-                                              {type.id === 2 && (
-                                                <CheckOutlined
-                                                  style={{ color: "#4b92ff" }}
-                                                  className="me-2"
-                                                />
-                                              )}
-                                              <span>
-                                                {type.taskType
-                                                  .charAt(0)
-                                                  .toUpperCase() +
-                                                  type.taskType.slice(1)}
-                                              </span>
-                                            </div>
-                                          </Select.Option>
-                                        );
-                                      })}
-                                    </Select>
-                                  </div>
-                                  {formik.errors.taskName && (
-                                    <div className="text-red-500">
-                                      {formik.errors.taskName}
-                                    </div>
-                                  )}
-                                </>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      );
+        <Row gutter={16}>
+          <DragDropContext onDragEnd={handleDragEnd}>
+            {clonedProjectDetail?.lstTask?.map((listTaskItem) => {
+              return (
+                <Col
+                  xs={{ span: 24 }}
+                  sm={{ span: 12 }}
+                  lg={{ span: 6 }}
+                  key={listTaskItem.statusId}
+                  className="mb-4"
+                >
+                  <div
+                    style={{
+                      backgroundColor: "#f4f5f7",
+                      padding: "8px",
+                      borderRadius: "6px",
                     }}
-                  </Droppable>
-                </div>
-              </Col>
-            );
-          })}
-        </DragDropContext>
-      </Row>
+                  >
+                    <div style={{ visibility: "hidden" }}>AAAAAA</div>
+                    <TaskListTitle title={listTaskItem.statusName} />
+                    <hr />
+                    <Droppable droppableId={listTaskItem.statusId}>
+                      {(provided) => {
+                        return (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                          >
+                            {listTaskItem.lstTaskDeTail.map(
+                              (listTaskDetailItem, index) => {
+                                return (
+                                  <TaskItem
+                                    key={listTaskDetailItem.taskId}
+                                    listTaskDetailItem={listTaskDetailItem}
+                                    index={index}
+                                    onClick={handleClickTaskItem(
+                                      listTaskDetailItem
+                                    )}
+                                  />
+                                );
+                              }
+                            )}
 
-      {selectedTask && (
-        <EditTaskModal
-          visible={showEditTaskModal}
-          onCancel={handleCancelEditTask}
-          task={selectedTask}
-        />
-      )}
+                            {provided.placeholder}
 
-      {projectDetail && (
-        <AddMemberModal
-          visible={showAddMembersModal}
-          onCancel={handleCancelUpdateMembers}
-          project={projectDetail}
-          onFetchProject={handleFetchProject}
-          showFooter={false}
-        />
-      )}
+                            {listTaskItem.statusName === "BACKLOG" && (
+                              <div>
+                                {!showNewTaskTextarea && (
+                                  <button
+                                    onClick={() => setShowNewTaskTextarea(true)}
+                                    className="btn btn-primary d-flex align-items-center mt-2"
+                                  >
+                                    <PlusOutlined className="mr-1" />
+                                    <span className="ms-2">Create</span>
+                                  </button>
+                                )}
+                                {showNewTaskTextarea && (
+                                  <>
+                                    <div
+                                      className={`bg-white border-2 mt-1 rounded${
+                                        formik.errors.taskName
+                                          ? " border-red-500 focus:border-red-500"
+                                          : " border-blue-400 focus:border-blue-400"
+                                      }`}
+                                    >
+                                      <textarea
+                                        rows="2"
+                                        maxLength="255"
+                                        placeholder="What needs to be done?"
+                                        className="w-full pt-2 px-2 outline-none resize-none"
+                                        onKeyDown={
+                                          handleKeyDownOnNewTaskTextarea
+                                        }
+                                        autoFocus
+                                        name="taskName"
+                                        value={formik.values.taskName}
+                                        onChange={formik.handleChange}
+                                        onBlur={handleBlurNewTaskTextarea}
+                                        ref={newTaskRef}
+                                      ></textarea>
+
+                                      <Select
+                                        name="typeId"
+                                        value={formik.values.typeId}
+                                        onChange={(value) =>
+                                          formik.setFieldValue("typeId", value)
+                                        }
+                                        onClick={handleTaskTypeClick}
+                                        onDropdownVisibleChange={
+                                          handleTaskTypeDropdownVisibleChange
+                                        }
+                                        defaultValue={1}
+                                        bordered={false}
+                                        className="mb-1"
+                                        optionLabelProp="label"
+                                        dropdownMatchSelectWidth={false}
+                                        style={{ marginTop: "-8px" }}
+                                      >
+                                        {taskTypes.map((type) => {
+                                          return (
+                                            <Select.Option
+                                              key={type.id}
+                                              value={type.id}
+                                              label={
+                                                <div className="h-full flex items-center">
+                                                  <Tooltip
+                                                    title={
+                                                      type.taskType
+                                                        .charAt(0)
+                                                        .toUpperCase() +
+                                                      type.taskType.slice(1)
+                                                    }
+                                                    placement="bottom"
+                                                  >
+                                                    {type.id === 1 && (
+                                                      <BugOutlined
+                                                        style={{
+                                                          color: "red",
+                                                        }}
+                                                      />
+                                                    )}
+                                                    {type.id === 2 && (
+                                                      <CheckOutlined
+                                                        style={{
+                                                          color: "#4b92ff",
+                                                        }}
+                                                      />
+                                                    )}
+                                                  </Tooltip>
+                                                </div>
+                                              }
+                                            >
+                                              <div className="flex justify-start items-center">
+                                                {type.id === 1 && (
+                                                  <BugOutlined
+                                                    style={{ color: "red" }}
+                                                    className="me-2"
+                                                  />
+                                                )}
+                                                {type.id === 2 && (
+                                                  <CheckOutlined
+                                                    style={{ color: "#4b92ff" }}
+                                                    className="me-2"
+                                                  />
+                                                )}
+                                                <span>
+                                                  {type.taskType
+                                                    .charAt(0)
+                                                    .toUpperCase() +
+                                                    type.taskType.slice(1)}
+                                                </span>
+                                              </div>
+                                            </Select.Option>
+                                          );
+                                        })}
+                                      </Select>
+                                    </div>
+                                    {formik.errors.taskName && (
+                                      <div className="text-red-500">
+                                        {formik.errors.taskName}
+                                      </div>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      }}
+                    </Droppable>
+                  </div>
+                </Col>
+              );
+            })}
+          </DragDropContext>
+        </Row>
+
+        {selectedTask && (
+          <EditTaskModal
+            visible={showEditTaskModal}
+            onCancel={handleCancelEditTask}
+            task={selectedTask}
+          />
+        )}
+
+        {projectDetail && (
+          <AddMemberModal
+            visible={showAddMembersModal}
+            onCancel={handleCancelUpdateMembers}
+            project={projectDetail}
+            onFetchProject={handleFetchProject}
+            showFooter={false}
+          />
+        )}
       </div>
     </div>
   );

@@ -24,6 +24,8 @@ export interface Member {
   avatar: string
 }
 export interface DataListProject {
+  pageSize: any
+  page: any
   currentPage: number
   count: number
   totalPages: number

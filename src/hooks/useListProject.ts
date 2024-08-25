@@ -4,11 +4,12 @@ import { projectApi } from '../apis/projects.api'
 
 type useListProjectOption = Omit<UseQueryOptions<DataListProject>, 'queryKey' | 'queryFn'>
 
-export const useListProject = (currentPage: number,pageSize:number, options?: useListProjectOption) => {
+
+export const useListProject = (currentPage: number, options?: useListProjectOption) => {
   const queryResult = useQuery({
-    queryKey: ['list-project', { currentPage, pageSize:pageSize}],
+    queryKey: ['list-project', { currentPage }],
     queryFn: () =>
-      projectApi.getAllProject<DataListProject>({ page: currentPage, pageSize:pageSize }),
+      projectApi.getAllProject<DataListProject>({ page: currentPage }),
       ...options,
   });
   
