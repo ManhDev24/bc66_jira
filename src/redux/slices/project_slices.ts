@@ -38,7 +38,7 @@ const projectReducer = createSlice({
         state.projectError = action.payload;
       },
       getUsersByProjectIdAction: (state, action) => {
-        state.projectMembers = action.payload;
+        state.projectMembers = action.payload || [];
       },
       getProjectEditAction: (state, action) => {
         state.projectEdit = action.payload;
@@ -127,9 +127,10 @@ export const getUsersByProjectIdApi = (projectId:any) => {
       const result = await fetcher.get(
         `/Users/getUserByProjectId?idProject=${projectId}`
       );
-      console.log(result.data.content);
-      const action = getUsersByProjectIdAction(result.data.content);
+      const data = result.data.content || [];
+      const action = getUsersByProjectIdAction(data);
       dispatch(action);
+
     } catch (error) {
       const action = getUsersByProjectIdAction(null);
       dispatch(action);

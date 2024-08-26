@@ -20,6 +20,7 @@ import {
   setProjectErrorNullAction,
 } from "../../redux/slices/project_slices";
 import { getAllUserApi } from "../../redux/slices/user_slice";
+import { PATH } from "../../routes/path";
 
 
 const AddMemberModal = (props) => {
@@ -30,18 +31,40 @@ const AddMemberModal = (props) => {
 
   const dispatch = useDispatch();
   const { projectMembers, projectError } = useSelector(
-    (state) => state.projectReducer
+    (state) => state.projectReducer || []
   );
+  
   const { userList } = useSelector((state) => state.userReducer);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const usersRef = useRef(null);
   const searchRef = useRef(null);
-
-  useEffect(() => {
-    dispatch(getUsersByProjectIdApi(projectId));
-    dispatch(getAllUserApi());
-  }, [dispatch, projectId]);
-
+  const isProjectMembersEmpty = !projectMembers || projectMembers.length === 0;
+  // useEffect(() => {
+  //   if (projectMembers.length === 0) {
+  //     // Nếu không có thành viên nào
+  //     dispatch(getAllUserApi());
+  //   } else {
+  //     // Nếu có thành viên, lấy thông tin thành viên theo dự án
+  //     if (projectId) {
+  //       dispatch(getUsersByProjectIdApi(projectId));
+  //     }
+  //   }
+  // }, [dispatch, projectId, projectMembers]);
+  if(PATH.TASK)
+  {
+    useEffect(() => {
+      dispatch(getUsersByProjectIdApi(projectId));
+    }, [dispatch, projectId]);
+  }
+ 
+  if(PATH.NEW){
+    
+    useEffect(() => {
+      //dispatch(getUsersByProjectIdApi(projectId));
+      dispatch(getAllUserApi());
+      // eslint-disable-next-line
+    }, [dispatch, projectId]);
+  }
   useEffect(() => {
     const clonedUsers = [...userList];
 
@@ -81,7 +104,6 @@ const AddMemberModal = (props) => {
 
   const addMemberToProject = (userId) => () => {
     const data = { projectId, userId };
-    console.log(data);
     dispatch(
       assignUserToProjectApi(data, () => {
         dispatch(getUsersByProjectIdApi(props.project.id));

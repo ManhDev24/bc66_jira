@@ -2,18 +2,26 @@ import { useFormik } from 'formik'
 import * as yup from 'yup'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { createProjectAuthorizeApi, getAllProjectCategoryApi, setProjectDetailNullAction } from '../../../redux/slices/project_slices'
+import { createProjectAuthorizeApi, getAllProject, getAllProjectCategoryApi, setProjectDetailNullAction } from '../../../redux/slices/project_slices'
 import AddMemberModal from '../../../components/AddMemberModal/AddMemberModal'
 import { Button, Form, Input, Select, Typography, Modal } from 'antd'
 import { Link } from 'react-router-dom'
 import TinyTextArea from '../../../components/TinyTextArea/TinyTextArea'
 import Navbar from '../../../layout/Home/Navbar'
-
+import { toast } from 'react-toastify'
+import { useMutation } from '@tanstack/react-query'
+import { projectApi } from '../../../apis/projects.api'
+import { forEach } from 'lodash'
 const ProjectNew = () => {
   const dispatch = useDispatch()
-  const { projectCategories, projectError, projectDetail } = useSelector((state: any) => state.projectReducer)
+  const { projectCategories, projectError, projectDetail} = useSelector((state: any) => state.projectReducer)
   const [showAddMembersModal, setShowAddMembersModal] = useState(false)
-
+  const [projectListData , setProjectListData] = useState([]);
+  // var projectNameList = [];
+  // Object.entries(projectListData).forEach(([key, value]) => {
+  //   projectNameList.push(value.projectName);
+  // });
+  
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -47,24 +55,44 @@ const ProjectNew = () => {
   const closeModal = () => {
     setShowAddMembersModal(false)
   }
-
   const handleSubmit = () => {
+    // projectNameList.forEach((project, index) => {
+    //   if(project === formik.values.projectName)
+    //   {
+    //     const errorMessage =  'Project của bạn đã bị trùng tên ';
+    //     toast.error(errorMessage)
+    //   }
+    // });
     dispatch(
       createProjectAuthorizeApi(formik.values, () => {
         formik.resetForm()
+        
         setShowAddMembersModal(true)
       })
+      
     )
+   
   }
 
+  // useEffect(() => {
+  //   // Giả sử bạn lấy dữ liệu dự án từ API hoặc một nguồn khác
+  //   const fetchProjects = async () => {
+  //     const projects = await projectApi.getAllProjectList(); // Thay thế bằng cách lấy dữ liệu của bạn
+  //     setProjectListData(projects);
+  //   };
+
+  //   fetchProjects();
+  // }, []);
   const handleCancel = () => {
     dispatch(setProjectDetailNullAction(null))
     setShowAddMembersModal(false)
   }
+  
   useEffect(() => {
     console.log('showAddMembersModal:', showAddMembersModal)
   }, [showAddMembersModal])
-  console.log(projectDetail)
+  
+  
   return (
     <div>
       <Navbar></Navbar>
