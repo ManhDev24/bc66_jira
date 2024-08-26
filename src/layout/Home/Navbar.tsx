@@ -87,7 +87,7 @@ interface UserValue {
 const schema = yup.object().shape({
   taskName: yup.string().required('Task name is required'),
 
-  description: yup.string().required('Description is required'),
+  // description: yup.string().required('Description is required'),
 })
 async function fetchUserList(username: string): Promise<UserValue[]> {
   console.log('fetching user', username)
