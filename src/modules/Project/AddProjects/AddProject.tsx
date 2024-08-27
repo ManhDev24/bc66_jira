@@ -14,14 +14,14 @@ import { projectApi } from '../../../apis/projects.api'
 import { forEach } from 'lodash'
 const ProjectNew = () => {
   const dispatch = useDispatch()
-  const { projectCategories, projectError, projectDetail} = useSelector((state: any) => state.projectReducer)
+  const { projectCategories, projectError, projectDetail } = useSelector((state: any) => state.projectReducer)
   const [showAddMembersModal, setShowAddMembersModal] = useState(false)
-  const [projectListData , setProjectListData] = useState([]);
+  const [projectListData, setProjectListData] = useState([])
   // var projectNameList = [];
   // Object.entries(projectListData).forEach(([key, value]) => {
   //   projectNameList.push(value.projectName);
   // });
-  
+
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -66,12 +66,10 @@ const ProjectNew = () => {
     dispatch(
       createProjectAuthorizeApi(formik.values, () => {
         formik.resetForm()
-        
+
         setShowAddMembersModal(true)
       })
-      
     )
-   
   }
 
   // useEffect(() => {
@@ -87,12 +85,9 @@ const ProjectNew = () => {
     dispatch(setProjectDetailNullAction(null))
     setShowAddMembersModal(false)
   }
-  
-  useEffect(() => {
-    console.log('showAddMembersModal:', showAddMembersModal)
-  }, [showAddMembersModal])
-  
-  
+
+  useEffect(() => {}, [showAddMembersModal])
+
   return (
     <div>
       <Navbar></Navbar>

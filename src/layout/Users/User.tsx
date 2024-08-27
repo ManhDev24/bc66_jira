@@ -146,7 +146,7 @@ const User = () => {
       title: 'No',
       key: 'no',
       dataIndex: 'no',
-      width: 70,
+      width: 50,
     },
     {
       title: 'User ID',
@@ -164,7 +164,7 @@ const User = () => {
       title: 'Phone Number',
       key: 'phoneNumber',
       dataIndex: 'phoneNumber',
-      render: (phoneNumber: string) => <div style={{ width: '100px' }}>{phoneNumber}</div>,
+      render: (phoneNumber: string) => <div style={{ width: '80px' }}>{phoneNumber}</div>,
     },
     {
       title: 'Email',
@@ -254,7 +254,7 @@ const User = () => {
   }
 
   if (isLoading || isGetUserInfo) {
-    return <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />
+    return <Spin className="mx-auto w-full h-screen flex justify-center items-center" indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />
   }
 
   if (isError || isGetUserError) {
@@ -271,10 +271,21 @@ const User = () => {
   }
 
   return (
-    <div className="container mx-auto p-4 mt-10 flex justify-center">
+    <div className=" mx-auto p-4 mt-5 flex justify-center h-screen">
       <Navbar />
-      <div className="p-6 w-full">
-        <Table rowKey={({ key }) => key} columns={columns} dataSource={dataSource} pagination={pagination} loading={isLoading} />
+      <div className="container py-6">
+        <Table
+          scroll={{ x: 1000 }}
+          size="middle"
+          rowKey={({ key }) => key}
+          columns={columns.map((col) => ({
+            ...col,
+            width: col.width || 100,
+          }))}
+          dataSource={dataSource}
+          pagination={pagination}
+          loading={isLoading}
+        />
       </div>
       <Modal
         open={open}
