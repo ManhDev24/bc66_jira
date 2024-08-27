@@ -90,8 +90,6 @@ const schema = yup.object().shape({
   // description: yup.string().required('Description is required'),
 })
 async function fetchUserList(username: string): Promise<UserValue[]> {
-  console.log('fetching user', username)
-
   return fetch('https://randomuser.me/api/?results=5')
     .then((response) => response.json())
     .then((body) =>
@@ -177,11 +175,6 @@ const Navbar: React.FC = () => {
 
     const descriptionPlainText = stripHtmlTags(data.description)
 
-    console.log('Form data:', {
-      ...data,
-      description: descriptionPlainText,
-    })
-
     createTask({
       ...data,
       description: descriptionPlainText,
@@ -206,11 +199,19 @@ const Navbar: React.FC = () => {
   // menu Projects
   const items: MenuProps['items'] = [
     {
-      label: <Link to={PATH.PROJECT}>View all project</Link>,
+      label: (
+        <Link className="no-underline" to={PATH.PROJECT}>
+          View all project
+        </Link>
+      ),
       key: '0',
     },
     {
-      label: <Link to={PATH.NEW}>Create project</Link>,
+      label: (
+        <Link className="no-underline" to={PATH.NEW}>
+          Create project
+        </Link>
+      ),
       key: '1',
     },
   ]
@@ -218,7 +219,9 @@ const Navbar: React.FC = () => {
   const menuItems1 = (
     <Menu>
       <Menu.Item key="0">
-        <Link to={PATH.USER}>View all users</Link>
+        <Link className="no-underline" to={PATH.USER}>
+          View all users
+        </Link>
       </Menu.Item>
     </Menu>
   )
@@ -231,7 +234,6 @@ const Navbar: React.FC = () => {
 
   const handleSelectionChange = (selected: string) => {
     setSelectedIds(selected)
-    console.log('Selected value:', value)
   }
   const { data: ProjectName } = useQuery({
     queryKey: ['project-list'],
@@ -299,13 +301,9 @@ const Navbar: React.FC = () => {
   }
 
   // Select Status
-  const handleChange = (value: string) => {
-    console.log(`selected ${value}`)
-  }
+  const handleChange = (value: string) => {}
   // Drawer select input number
-  const onChange: InputNumberProps['onChange'] = (value) => {
-    console.log('changed', value)
-  }
+  const onChange: InputNumberProps['onChange'] = (value) => {}
   // drawer Slider
   const [disabled, setDisabled] = useState(false)
   const onChange1 = (checked: boolean) => {
@@ -358,7 +356,7 @@ const Navbar: React.FC = () => {
         <div className="h-full flex justify-between items-center">
           <nav className="h-full flex items-center">
             {/* link to projects icon */}
-            <a className="text-blue-700 font-medium py-1 px-2 hover:bg-blue-200 focus:bg-blue-200 rounded mr-1" href={PATH.PROJECT}>
+            <a className="text-blue-700 font-medium py-1 px-2 hover:bg-blue-200 focus:bg-blue-200 rounded mr-1  " href={PATH.PROJECT}>
               <svg
                 viewBox="0 0 32 32"
                 xmlns="http://www.w3.org/2000/svg"
@@ -455,7 +453,7 @@ const Navbar: React.FC = () => {
             </a>
             {/* btn link to projects */}
             <Dropdown className="ant-dropdown-trigger text-blue-700 h-8 font-medium py-1.5 hover:bg-blue-200 focus:bg-blue-200 rounded px-3" menu={{ items }} trigger={['click']}>
-              <a onClick={(e) => e.preventDefault()}>
+              <a className="cursor-pointer" onClick={(e) => e.preventDefault()}>
                 <Space>
                   Projects
                   <DownOutlined />
@@ -464,7 +462,7 @@ const Navbar: React.FC = () => {
             </Dropdown>
             {/* btn link to users */}
             <Dropdown className="ant-dropdown-trigger text-blue-700 h-8 font-medium py-1.5 hover:bg-blue-200 focus:bg-blue-200 rounded px-3" overlay={menuItems1} trigger={['click']}>
-              <a onClick={(e) => e.preventDefault()}>
+              <a className="cursor-pointer" onClick={(e) => e.preventDefault()}>
                 <Space>
                   User
                   <DownOutlined />
@@ -472,10 +470,10 @@ const Navbar: React.FC = () => {
               </a>
             </Dropdown>
             {/* create task */}
-            <div>
-              <Button type="primary" className="px-3" onClick={showDrawer}>
-                Create Task
-              </Button>
+            <div className=" h-8 font-medium py-1.5 hover:bg-blue-200 focus:bg-blue-200 rounded px-3 ">
+              <a className="cursor-pointer text-blue-700 ">
+                <Space onClick={showDrawer}>Create Task</Space>
+              </a>
             </div>
             {/* create avatar */}
 

@@ -36,8 +36,6 @@ const Profile = () => {
   const dispatch = useAppDispatch()
   const queryClient = useQueryClient()
 
-  console.log('user: ', user)
-
   const {
     data: userData,
     isLoading: isGetUserInfo,
@@ -48,7 +46,6 @@ const Profile = () => {
     queryFn: () => userAPI.getDetailuserById(user?.id as any),
     enabled: !!user?.id,
   })
-  console.log('userData: ', userData)
 
   const {
     handleSubmit,
