@@ -108,7 +108,7 @@ const Login = () => {
         </Row>
       </Form>
       <Typography className="mt-8 text-center">
-        Do no have account ?
+        Do not have account ?
         <a href={PATH.REGISTER}>
           <span className="text-blue-700 font-medium cursor-pointer"> Register</span>
         </a>

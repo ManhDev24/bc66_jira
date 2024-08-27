@@ -22,8 +22,7 @@ export const projectApi = {
   },
   getAllProjectList: async <T>() => {
     try {
-      const response = await fetcher.get<Welcome<Project>>('/Project/getAllProject'
-      )
+      const response = await fetcher.get<Welcome<Project>>('/Project/getAllProject')
       return response.data.content
     } catch (error: any) {
       throw Error(error.response.data.content)
@@ -32,10 +31,8 @@ export const projectApi = {
   addProject: async (payload: ProjectData) => {
     try {
       const response = await fetcher.post('https://jiranew.cybersoft.edu.vn/api/Project/createProject', payload)
-      console.log(response.data.content)
       return response.data.content
     } catch (error: any) {
-      console.log(error)
       throw Error(error.response.data.content)
     }
   },

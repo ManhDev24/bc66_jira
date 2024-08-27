@@ -88,12 +88,10 @@ interface UserValue {
 const schema = yup.object().shape({
   taskName: yup.string().required("Task name is required"),
 
-  description: yup.string().required("Description is required"),
-});
+  // description: yup.string().required('Description is required'),
+})
 async function fetchUserList(username: string): Promise<UserValue[]> {
-  console.log("fetching user", username);
-
-  return fetch("https://randomuser.me/api/?results=5")
+  return fetch('https://randomuser.me/api/?results=5')
     .then((response) => response.json())
     .then((body) =>
       body.results.map(
@@ -181,12 +179,7 @@ const Navbar: React.FC = () => {
       return doc.body.textContent || "";
     };
 
-    const descriptionPlainText = stripHtmlTags(data.description);
-
-    console.log("Form data:", {
-      ...data,
-      description: descriptionPlainText,
-    });
+    const descriptionPlainText = stripHtmlTags(data.description)
 
     createTask({
       ...data,
@@ -214,7 +207,6 @@ const Navbar: React.FC = () => {
     {
       key: "0",
       label: <a href={PATH.PROJECT}>View all project</a>,
-      
     },
     {
       key: "1",
@@ -226,7 +218,9 @@ const Navbar: React.FC = () => {
   const menuItems1 = (
     <Menu>
       <Menu.Item key="0">
-        <Link to={PATH.USER}>View all users</Link>
+        <Link className="no-underline" to={PATH.USER}>
+          View all users
+        </Link>
       </Menu.Item>
     </Menu>
   );
@@ -238,9 +232,8 @@ const Navbar: React.FC = () => {
   const [selectedIds, setSelectedIds] = useState<string>("");
 
   const handleSelectionChange = (selected: string) => {
-    setSelectedIds(selected);
-    console.log("Selected value:", value);
-  };
+    setSelectedIds(selected)
+  }
   const { data: ProjectName } = useQuery({
     queryKey: ["project-list"],
     queryFn: () =>
@@ -307,13 +300,9 @@ const Navbar: React.FC = () => {
   };
 
   // Select Status
-  const handleChange = (value: string) => {
-    console.log(`selected ${value}`);
-  };
+  const handleChange = (value: string) => {}
   // Drawer select input number
-  const onChange: InputNumberProps["onChange"] = (value) => {
-    console.log("changed", value);
-  };
+  const onChange: InputNumberProps['onChange'] = (value) => {}
   // drawer Slider
   const [disabled, setDisabled] = useState(false);
   const onChange1 = (checked: boolean) => {
@@ -528,10 +517,10 @@ const Navbar: React.FC = () => {
               </a>
             </Dropdown>
             {/* create task */}
-            <div>
-              <Button type="primary" className="px-3" onClick={showDrawer}>
-                Create Task
-              </Button>
+            <div className=" h-8 font-medium py-1.5 hover:bg-blue-200 focus:bg-blue-200 rounded px-3 ">
+              <a className="cursor-pointer text-blue-700 ">
+                <Space onClick={showDrawer}>Create Task</Space>
+              </a>
             </div>
             {/* create avatar */}
 
