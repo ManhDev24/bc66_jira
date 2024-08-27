@@ -9,7 +9,7 @@ import { Controller, useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { toast } from 'react-toastify'
-
+import { useMediaQuery } from 'usehooks-ts'
 interface DataType {
   key: string
   no: number
@@ -80,6 +80,7 @@ const User = () => {
   const [open, setOpen] = useState(false)
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
   const queryClient = useQueryClient()
+  const isWebDevice = useMediaQuery('(max-width:832px)')
 
   const {
     handleSubmit,
@@ -147,16 +148,19 @@ const User = () => {
       key: 'no',
       dataIndex: 'no',
       width: 50,
+      responsive: ['xs', 'sm', 'md'],
     },
     {
       title: 'User ID',
       key: 'userId',
       dataIndex: 'userId',
+      responsive: ['xs', 'sm', 'md'],
     },
     {
       title: 'Name',
       key: 'name',
       dataIndex: 'name',
+      responsive: ['xs', 'sm', 'md'],
       sorter: (a, b) => a.name.localeCompare(b.name),
       ...getColumnSearchProps('name'),
     },
@@ -164,22 +168,26 @@ const User = () => {
       title: 'Phone Number',
       key: 'phoneNumber',
       dataIndex: 'phoneNumber',
+      responsive: ['xs', 'sm', 'md'],
       render: (phoneNumber: string) => <div style={{ width: '80px' }}>{phoneNumber}</div>,
     },
     {
       title: 'Email',
       key: 'email',
       dataIndex: 'email',
+      responsive: ['xs', 'sm', 'md'],
     },
     {
       title: 'Avatar',
       key: 'avatar',
       dataIndex: 'avatar',
+      responsive: ['xs', 'sm', 'md'],
       render: (avatar: string) => <img src={avatar} alt="Avatar" style={{ width: 50, height: 50, borderRadius: '50%' }} />,
     },
     {
       title: 'Action',
       key: 'action',
+      responsive: ['xs', 'sm', 'md'],
       render: (_, record: DataType) => (
         <Space>
           <Button icon={<EditOutlined />} onClick={() => handleEdit(record.userId)} type="link">
@@ -269,23 +277,98 @@ const User = () => {
   const handleDelete = (id: string) => {
     handleDeleteUser(id)
   }
+  const deviceColumns = [
+    {
+      title: 'User detail',
+      render: (record: DataType) => {
+        const userDataName = record.name
+        const userDataEmail = record.email
+        const userDataPhone = record.phoneNumber
+        const userDataAvatar = record.avatar
+        const userId = record.userId
+
+        return (
+          <div>
+            <ul className="text-text-decoration-none list-unstyled">
+              <li className="row flex-wrap">
+                <div className="col-6">
+                  <p className="ant-typography">
+                    <strong>UserId:</strong>
+                  </p>
+                </div>
+                <div className="col-6">
+                  <a className="no-underline">{userId}</a>
+                </div>
+              </li>
+              <li className="row flex-wrap">
+                <div className="col-6">
+                  <p className="ant-typography">
+                    <strong>Name:</strong>
+                  </p>
+                </div>
+                <div className="col-6">
+                  <a className="no-underline text-text-decoration-none text-black">{userDataName}</a>
+                </div>
+              </li>
+              <li className="row flex-wrap">
+                <div className="col-6">
+                  <p className="ant-typography">
+                    <strong>PhoneNumber:</strong>
+                  </p>
+                </div>
+                <div className="col-6">
+                  <a className="text-black no-underline">{userDataPhone}</a>
+                </div>
+              </li>
+              <li className="row flex-wrap">
+                <div className="col-6">
+                  <p className="ant-typography">
+                    <strong>Email:</strong>
+                  </p>
+                </div>
+                <div className="col-6">
+                  <a className="text-black no-underline">{userDataEmail}</a>
+                </div>
+              </li>
+              <li className="row flex-wrap">
+                <div className="col-6">
+                  <p className="ant-typography">
+                    <strong>Avatar:</strong>
+                  </p>
+                </div>
+                <div className="col-6">
+                  <img src={userDataAvatar} alt="Avatar" style={{ width: 50, height: 50, borderRadius: '50%' }} />
+                </div>
+              </li>
+              <li className="row flex-wrap">
+                <div className="col-6">
+                  <p className="ant-typography">
+                    <strong>Action:</strong>
+                  </p>
+                </div>
+                <div className="col-6">
+                  <Button icon={<EditOutlined />} onClick={() => handleEdit(record.userId)} type="link">
+                    Edit
+                  </Button>
+                  <Popconfirm title="Are you sure you want to remove user?" onConfirm={() => handleDelete(record.userId)} okText="Yes" cancelText="No">
+                    <Button icon={<DeleteOutlined />} type="link" danger>
+                      Delete
+                    </Button>
+                  </Popconfirm>
+                </div>
+              </li>
+            </ul>
+          </div>
+        )
+      },
+    },
+  ]
 
   return (
-    <div className=" mx-auto p-4 mt-5 flex justify-center h-screen">
+    <div className=" responsive-container mx-auto p-4 mt-5 flex justify-center h-screen">
       <Navbar />
       <div className="container py-6">
-        <Table
-          scroll={{ x: 1000 }}
-          size="middle"
-          rowKey={({ key }) => key}
-          columns={columns.map((col) => ({
-            ...col,
-            width: col.width || 100,
-          }))}
-          dataSource={dataSource}
-          pagination={pagination}
-          loading={isLoading}
-        />
+        <Table className="table" size="middle" rowKey={({ key }) => key} columns={isWebDevice ? deviceColumns : columns} dataSource={dataSource} pagination={pagination} loading={isLoading} />
       </div>
       <Modal
         open={open}
