@@ -115,3 +115,95 @@ button {
         transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
     }
 }
+@media (max-width:760px) {
+    /* CSS rules for screens smaller than or equal to 760px */
+    *, :after, :before {
+        --tw-ring-inset: var(--tw-empty, /*!*/ /*!*/);
+        --tw-ring-offset-width: 0px;
+        --tw-ring-offset-color: #fff;
+        --tw-ring-color: rgba(59, 130, 246, 0.5);
+        --tw-ring-offset-shadow: 0 0 transparent;
+        --tw-ring-shadow: 0 0 transparent;
+        --tw-border-opacity: 1;
+        border-color: rgba(229, 231, 235, var(--tw-border-opacity));
+    }
+    .ant-list {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        color: rgba(0, 0, 0, .85);
+        font-size: 14px;
+        line-height: 1.5715;
+        list-style: none;
+        position: relative;
+    }
+    .ant-spin-nested-loading {
+        position: relative;
+    }
+    .ant-list * {
+        outline: none;
+    }
+    .ant-spin-container {
+        position: relative;
+        transition: opacity .3s;
+    }
+    .ant-list * {
+        outline: none;
+    }
+    .ant-list-items {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+    .ant-spin-container:after {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 10;
+        display: none\9;
+        width: 100%;
+        height: 100%;
+        background: #fff;
+        opacity: 0;
+        transition: all .3s;
+        content: "";
+        pointer-events: none;
+    }
+     .ant-list-item {
+        padding: 16px 24px;
+    }
+    
+    .ant-list-split .ant-list-item {
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .block {
+        display: block;
+    }
+    .anticon {
+        display: inline-block;
+        color: inherit;
+        font-style: normal;
+        line-height: 0;
+        text-align: center;
+        text-transform: none;
+        vertical-align: -.125em;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    .px-1{
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+    }
+    .d_none_mobile{
+        display: none !important;
+    }
+}
+.img_size{
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    font-size: 18px;
+}

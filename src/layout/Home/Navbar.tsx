@@ -27,23 +27,24 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
-export interface DebounceSelectProps<ValueType = any> extends Omit<SelectProps<ValueType | ValueType[]>, 'options' | 'children'> {
-  fetchOptions: (search: string) => Promise<ValueType[]>
-  debounceTimeout?: number
+export interface DebounceSelectProps<ValueType = any>
+  extends Omit<SelectProps<ValueType | ValueType[]>, "options" | "children"> {
+  fetchOptions: (search: string) => Promise<ValueType[]>;
+  debounceTimeout?: number;
 }
 
 interface FormValue {
-  listUserAsign: number[]
-  taskId: string
-  taskName: string
-  description: string
-  statusId: string
-  originalEstimate: number
-  timeTrackingSpent: number
-  timeTrackingRemaining: number
-  projectId: number
-  typeId: number
-  priorityId: number
+  listUserAsign: number[];
+  taskId: string;
+  taskName: string;
+  description: string;
+  statusId: string;
+  originalEstimate: number;
+  timeTrackingSpent: number;
+  timeTrackingRemaining: number;
+  projectId: number;
+  typeId: number;
+  priorityId: number;
 }
 // function DebounceSelect<
 //   ValueType extends {
@@ -81,40 +82,45 @@ interface FormValue {
 
 // Usage of DebounceSelect
 interface UserValue {
-  label: string
-  value: string
+  label: string;
+  value: string;
 }
 const schema = yup.object().shape({
-  taskName: yup.string().required('Task name is required'),
+  taskName: yup.string().required("Task name is required"),
 
-  description: yup.string().required('Description is required'),
-})
+  description: yup.string().required("Description is required"),
+});
 async function fetchUserList(username: string): Promise<UserValue[]> {
-  console.log('fetching user', username)
+  console.log("fetching user", username);
 
-  return fetch('https://randomuser.me/api/?results=5')
+  return fetch("https://randomuser.me/api/?results=5")
     .then((response) => response.json())
     .then((body) =>
-      body.results.map((user: { name: { first: string; last: string }; login: { username: string } }) => ({
-        label: `${user.name.first} ${user.name.last}`,
-        value: user.login.username,
-      }))
-    )
+      body.results.map(
+        (user: {
+          name: { first: string; last: string };
+          login: { username: string };
+        }) => ({
+          label: `${user.name.first} ${user.name.last}`,
+          value: user.login.username,
+        })
+      )
+    );
 }
 const Navbar: React.FC = () => {
   // FETCH LIST USER
-  const [value, setValue] = useState<UserValue[]>([])
-  const [hoursSpent, setHoursSpent] = useState(1)
-  const [originalEstimate, setOriginalEstimate] = useState(1)
+  const [value, setValue] = useState<UserValue[]>([]);
+  const [hoursSpent, setHoursSpent] = useState(1);
+  const [originalEstimate, setOriginalEstimate] = useState(1);
 
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   const handleOriginalEstimateChange = (value: number) => {
-    setOriginalEstimate(value)
+    setOriginalEstimate(value);
     if (hoursSpent > value) {
-      setHoursSpent(value)
+      setHoursSpent(value);
     }
-  }
+  };
   const {
     handleSubmit,
     control,
@@ -125,95 +131,97 @@ const Navbar: React.FC = () => {
   } = useForm<FormValue>({
     defaultValues: {
       projectId: 0,
-      taskName: '',
-      statusId: '',
+      taskName: "",
+      statusId: "",
       priorityId: 0,
       typeId: 0,
       listUserAsign: [],
       originalEstimate: 0,
       timeTrackingSpent: 0,
-      description: '',
+      description: "",
     },
     resolver: yupResolver(schema),
-    criteriaMode: 'all',
-    mode: 'onBlur',
+    criteriaMode: "all",
+    mode: "onBlur",
     shouldFocusError: false,
-  })
+  });
 
   const { mutate: createTask } = useMutation({
     mutationFn: (payload: FormValue) => taskApi.createTask(payload),
     onSuccess: () => {
-      toast.success('Task created successfully', {
-        position: 'top-center',
+      toast.success("Task created successfully", {
+        position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        theme: 'light',
-      })
+        theme: "light",
+      });
     },
     onError: (error: any) => {
-      const errorMessage = error?.message || 'An unexpected error occurred'
+      const errorMessage = error?.message || "An unexpected error occurred";
       toast.error(`${errorMessage}`, {
-        position: 'top-center',
+        position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        theme: 'light',
-      })
+        theme: "light",
+      });
     },
-  })
+  });
   const onSubmit = (data: FormValue) => {
     // Function to strip HTML tags
     const stripHtmlTags = (html: string): string => {
-      const doc = new DOMParser().parseFromString(html, 'text/html')
-      return doc.body.textContent || ''
-    }
+      const doc = new DOMParser().parseFromString(html, "text/html");
+      return doc.body.textContent || "";
+    };
 
-    const descriptionPlainText = stripHtmlTags(data.description)
+    const descriptionPlainText = stripHtmlTags(data.description);
 
-    console.log('Form data:', {
+    console.log("Form data:", {
       ...data,
       description: descriptionPlainText,
-    })
+    });
 
     createTask({
       ...data,
       description: descriptionPlainText,
-    })
-  }
+    });
+  };
   const handleHoursChange = (value: number) => {
-    setHoursSpent(value)
-  }
+    setHoursSpent(value);
+  };
 
   const handleSliderChange = (value: number) => {
-    setHoursSpent(value)
-  }
+    setHoursSpent(value);
+  };
 
   const showDrawer = () => {
-    reset()
-    setOpen(true)
-  }
+    reset();
+    setOpen(true);
+  };
 
   const onClose = () => {
-    setOpen(false)
-  }
+    setOpen(false);
+  };
   // menu Projects
-  const items: MenuProps['items'] = [
+  const items: MenuProps["items"] = [
     {
-      label: <Link to={PATH.PROJECT}>View all project</Link>,
-      key: '0',
+      key: "0",
+      label: <a href={PATH.PROJECT}>View all project</a>,
+      
     },
     {
-      label: <Link to={PATH.NEW}>Create project</Link>,
-      key: '1',
+      key: "1",
+      label: <a href={PATH.NEW}>Create project</a>,
+      
     },
-  ]
+  ];
   // menu User
   const menuItems1 = (
     <Menu>
@@ -221,126 +229,133 @@ const Navbar: React.FC = () => {
         <Link to={PATH.USER}>View all users</Link>
       </Menu.Item>
     </Menu>
-  )
+  );
 
   // select project drawer
-  type LabelRender = SelectProps['labelRender']
+  type LabelRender = SelectProps["labelRender"];
 
   //
-  const [selectedIds, setSelectedIds] = useState<string>('')
+  const [selectedIds, setSelectedIds] = useState<string>("");
 
   const handleSelectionChange = (selected: string) => {
-    setSelectedIds(selected)
-    console.log('Selected value:', value)
-  }
+    setSelectedIds(selected);
+    console.log("Selected value:", value);
+  };
   const { data: ProjectName } = useQuery({
-    queryKey: ['project-list'],
+    queryKey: ["project-list"],
     queryFn: () =>
       projectApi.getAllProject({
         page: 1,
         pageSize: 10,
       }),
-  })
+  });
   const { data: taskStatus } = useQuery({
-    queryKey: ['project-status'],
+    queryKey: ["project-status"],
     queryFn: () => taskApi.getAllStatus(),
-  })
+  });
   const { data: taskPriority } = useQuery({
-    queryKey: ['task-priority'],
+    queryKey: ["task-priority"],
     queryFn: () => taskApi.getPriority(),
-  })
+  });
   const { data: taskType } = useQuery({
-    queryKey: ['task-type'],
+    queryKey: ["task-type"],
     queryFn: () => taskApi.getTaskType(),
-  })
+  });
 
   const { data: userByProjectId } = useQuery({
-    queryKey: ['user-by-project', selectedIds],
+    queryKey: ["user-by-project", selectedIds],
     queryFn: () => taskApi.getUserByProjectId(selectedIds),
     enabled: !!selectedIds,
-  })
+  });
   const optionsProject = ProjectName?.map((items: ProjectData) => {
     return {
       label: items.alias,
       value: items.id,
-    }
-  })
+    };
+  });
   const optionUser = userByProjectId?.map((items: taskUser) => {
     return {
       label: items.name,
       value: items.userId,
-    }
-  })
+    };
+  });
   const optionStatus = taskStatus?.map((items: taskStatus) => {
     return {
       label: items.statusName,
       value: items.statusId,
-    }
-  })
+    };
+  });
   const optionPriority = taskPriority?.map((items: taskPriority) => {
     return {
       label: items.alias,
       value: items.priorityId,
-    }
-  })
+    };
+  });
   const optionType = taskType?.map((items: taskType) => {
     return {
       label: items.taskType,
       value: items.id,
-    }
-  })
+    };
+  });
   const labelRender: LabelRender = (props) => {
-    const { label, value } = props
+    const { label, value } = props;
 
     if (label) {
-      return value
+      return value;
     }
-    return <span> value </span>
-  }
+    return <span> value </span>;
+  };
 
   // Select Status
   const handleChange = (value: string) => {
-    console.log(`selected ${value}`)
-  }
+    console.log(`selected ${value}`);
+  };
   // Drawer select input number
-  const onChange: InputNumberProps['onChange'] = (value) => {
-    console.log('changed', value)
-  }
+  const onChange: InputNumberProps["onChange"] = (value) => {
+    console.log("changed", value);
+  };
   // drawer Slider
-  const [disabled, setDisabled] = useState(false)
+  const [disabled, setDisabled] = useState(false);
   const onChange1 = (checked: boolean) => {
-    setDisabled(checked)
-  }
-  const user = useAppSelector((state) => state.user.currentUser)
-  const dispatch = useAppDispatch()
+    setDisabled(checked);
+  };
+  const user = useAppSelector((state) => state.user.currentUser);
+  const dispatch = useAppDispatch();
   const handleSignOut = () => {
-    dispatch(signOut())
-    setLocalStorage('user', null)
-  }
-  const DropDownAvatar: MenuProps['items'] = [
+    dispatch(signOut());
+    setLocalStorage("user", null);
+  };
+  const DropDownAvatar: MenuProps["items"] = [
     {
-      key: '1',
+      key: "1",
       label: (
-        <span style={{ cursor: 'auto' }} className=" font-bold text-md text-gray-500 uppercase pr-20 ">
+        <span
+          style={{ cursor: "auto" }}
+          className=" font-bold text-md text-gray-500 uppercase pr-20 "
+        >
           {user?.name}
         </span>
       ),
       disabled: true,
     },
     {
-      key: '2',
+      key: "2",
       label: (
-        <a className="no-underline " rel="noopener noreferrer" href={PATH.PROFILE}>
+        <a
+          className="no-underline "
+          rel="noopener noreferrer"
+          href={PATH.PROFILE}
+        >
           <span className="text-gray-500 text-md">Profile</span>
         </a>
       ),
     },
     {
-      key: '3',
+      key: "3",
       label: (
         <a
           onClick={() => {
-            handleSignOut()
+            handleSignOut();
           }}
           className="no-underline "
           rel="noopener noreferrer"
@@ -350,25 +365,40 @@ const Navbar: React.FC = () => {
         </a>
       ),
     },
-  ]
+  ];
 
   return (
     <div>
-      <header className="h-14 bg-white shadow px-4 fixed left-0 top-0 w-full z-header" style={{ zIndex: '10' }}>
+      <header
+        className="h-14 bg-white shadow px-4 fixed left-0 top-0 w-full z-header"
+        style={{ zIndex: "10" }}
+      >
         <div className="h-full flex justify-between items-center">
           <nav className="h-full flex items-center">
             {/* link to projects icon */}
-            <a className="text-blue-700 font-medium py-1 px-2 hover:bg-blue-200 focus:bg-blue-200 rounded mr-1" href={PATH.PROJECT}>
+            <a
+              className="text-blue-700  font-medium py-1 px-2 hover:bg-blue-200 focus:bg-blue-200 rounded mr-1"
+              href={PATH.PROJECT}
+            >
               <svg
                 viewBox="0 0 32 32"
                 xmlns="http://www.w3.org/2000/svg"
                 focusable="false"
                 aria-hidden="true"
-                className="h-6 block md:hidden"
-                style={{ color: 'rgb(38, 132, 255)', fill: 'rgb(37, 56, 88)' }}
+                className="h-6 block md:hidden d_none_mobile"
+                style={{
+                  color: "rgb(38, 132, 255)",
+                  fill: "rgb(37, 56, 88)",
+                }}
               >
                 <defs>
-                  <linearGradient x1="94.092%" x2="56.535%" y1="6.033%" y2="43.087%" id="uid2">
+                  <linearGradient
+                    x1="94.092%"
+                    x2="56.535%"
+                    y1="6.033%"
+                    y2="43.087%"
+                    id="uid2"
+                  >
                     <stop stopColor="#0052CC" offset="18%" />
                     <stop stopColor="#2684FF" offset="100%" />
                   </linearGradient>
@@ -388,17 +418,26 @@ const Navbar: React.FC = () => {
                   />
                 </g>
               </svg>
-              <img src={logo} className="ml-5" width={25} alt="..." />
+              <img src={logo} className="ml-5 img_size" alt="..." />
               <svg
                 viewBox="0 0 32 32"
                 xmlns="http://www.w3.org/2000/svg"
                 focusable="false"
                 aria-hidden="true"
-                className="h-6 block md:hidden"
-                style={{ color: 'rgb(38, 132, 255)', fill: 'rgb(37, 56, 88)' }}
+                className="h-6 block md:hidden d_none_mobile"
+                style={{
+                  color: "rgb(38, 132, 255)",
+                  fill: "rgb(37, 56, 88)",
+                }}
               >
                 <defs>
-                  <linearGradient x1="94.092%" x2="56.535%" y1="6.033%" y2="43.087%" id="uid2">
+                  <linearGradient
+                    x1="94.092%"
+                    x2="56.535%"
+                    y1="6.033%"
+                    y2="43.087%"
+                    id="uid2"
+                  >
                     <stop stopColor="#0052CC" offset="18%" />
                     <stop stopColor="#2684FF" offset="100%" />
                   </linearGradient>
@@ -423,11 +462,20 @@ const Navbar: React.FC = () => {
                 xmlns="http://www.w3.org/2000/svg"
                 focusable="false"
                 aria-hidden="true"
-                className="h-6 hidden md:block"
-                style={{ color: 'rgb(38, 132, 255)', fill: 'rgb(37, 56, 88)' }}
+                className="h-6 hidden md:block  d_none_mobile"
+                style={{
+                  color: "rgb(38, 132, 255)",
+                  fill: "rgb(37, 56, 88)",
+                }}
               >
                 <defs>
-                  <linearGradient x1="98.0308675%" y1="0.160599572%" x2="58.8877062%" y2="40.7655246%" id="uid1">
+                  <linearGradient
+                    x1="98.0308675%"
+                    y1="0.160599572%"
+                    x2="58.8877062%"
+                    y2="40.7655246%"
+                    id="uid1"
+                  >
                     <stop stopColor="#0052CC" offset="18%" />
                     <stop stopColor="#2684FF" offset="100%" />
                   </linearGradient>
@@ -454,7 +502,11 @@ const Navbar: React.FC = () => {
               </svg>
             </a>
             {/* btn link to projects */}
-            <Dropdown className="ant-dropdown-trigger text-blue-700 h-8 font-medium py-1.5 hover:bg-blue-200 focus:bg-blue-200 rounded px-3" menu={{ items }} trigger={['click']}>
+            <Dropdown
+              className="ant-dropdown-trigger text-blue-700 h-8 font-medium py-1.5 hover:bg-blue-200 focus:bg-blue-200 rounded  px-3 px-1"
+              menu={{ items}}
+              trigger={["click"]}
+            >
               <a onClick={(e) => e.preventDefault()}>
                 <Space>
                   Projects
@@ -463,7 +515,11 @@ const Navbar: React.FC = () => {
               </a>
             </Dropdown>
             {/* btn link to users */}
-            <Dropdown className="ant-dropdown-trigger text-blue-700 h-8 font-medium py-1.5 hover:bg-blue-200 focus:bg-blue-200 rounded px-3" overlay={menuItems1} trigger={['click']}>
+            <Dropdown
+              className="ant-dropdown-trigger text-blue-700 h-8 font-medium py-1.5 hover:bg-blue-200 focus:bg-blue-200 rounded px-3 px-1"
+              overlay={menuItems1}
+              trigger={["click"]}
+            >
               <a onClick={(e) => e.preventDefault()}>
                 <Space>
                   User
@@ -489,25 +545,45 @@ const Navbar: React.FC = () => {
                     render={({ field }) => (
                       <Select
                         className="my-1"
-                        defaultValue={'Select Project'}
-                        status={errors.projectId ? 'error' : ''}
+                        defaultValue={"Select Project"}
+                        status={errors.projectId ? "error" : ""}
                         onChange={(value) => {
-                          field.onChange(value)
-                          handleSelectionChange(value as any)
+                          field.onChange(value);
+                          handleSelectionChange(value as any);
                         }}
-                        value={field.value || ''}
-                        style={{ width: '100%' }}
+                        value={field.value || ""}
+                        style={{ width: "100%" }}
                         options={optionsProject}
                       />
                     )}
                   />
-                  {errors.projectId && <p className="text-xs text-red-600">{errors.projectId.message}</p>}
-                  <span className="italic font-medium text-sm mt-2 ">* You can only create tasks of your own projects!</span>
+                  {errors.projectId && (
+                    <p className="text-xs text-red-600">
+                      {errors.projectId.message}
+                    </p>
+                  )}
+                  <span className="italic font-medium text-sm mt-2 ">
+                    * You can only create tasks of your own projects!
+                  </span>
                 </div>
                 <div className="mt-3">
                   <p className="mb-0">Task name</p>
-                  <Controller name="taskName" control={control} render={({ field }) => <Input {...field} status={errors.taskName ? 'error' : ''} placeholder="Task Name" />} />
-                  {errors.taskName && <p className="text-xs text-red-600">{errors.taskName.message}</p>}
+                  <Controller
+                    name="taskName"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        status={errors.taskName ? "error" : ""}
+                        placeholder="Task Name"
+                      />
+                    )}
+                  />
+                  {errors.taskName && (
+                    <p className="text-xs text-red-600">
+                      {errors.taskName.message}
+                    </p>
+                  )}
                 </div>
                 <div className="w-full mt-3">
                   <p>Status </p>
@@ -516,7 +592,13 @@ const Navbar: React.FC = () => {
                       name="statusId"
                       control={control}
                       render={({ field }) => (
-                        <Select status={errors.statusId ? 'error' : ''} defaultValue="Choose status" style={{ width: '100%' }} onChange={(value) => field.onChange(value)} options={optionStatus} />
+                        <Select
+                          status={errors.statusId ? "error" : ""}
+                          defaultValue="Choose status"
+                          style={{ width: "100%" }}
+                          onChange={(value) => field.onChange(value)}
+                          options={optionStatus}
+                        />
                       )}
                     />
                   </Space>
@@ -524,35 +606,59 @@ const Navbar: React.FC = () => {
                 <div className="w-full flex justify-between ">
                   <div className="w-5/12 mt-3 ">
                     <p>Priority </p>
-                    <Space wrap name="priorityId" style={{ width: '100%' }} className="d-block_choose">
+                    <Space
+                      wrap
+                      name="priorityId"
+                      style={{ width: "100%" }}
+                      className="d-block_choose"
+                    >
                       <Controller
                         name="priorityId"
                         control={control}
                         render={({ field }) => (
                           <Select
-                            status={errors.priorityId ? 'error' : ''}
+                            status={errors.priorityId ? "error" : ""}
                             onChange={(value) => field.onChange(value)}
                             defaultValue="Choose priority"
-                            style={{ width: '100%' }}
+                            style={{ width: "100%" }}
                             options={optionPriority}
                           />
                         )}
                       />
                     </Space>
-                    {errors.priorityId && <p className="text-xs text-red-600">{errors.priorityId.message}</p>}
+                    {errors.priorityId && (
+                      <p className="text-xs text-red-600">
+                        {errors.priorityId.message}
+                      </p>
+                    )}
                   </div>
                   <div className="w-5/12 mt-3 ">
                     <p>Task Type</p>
-                    <Space wrap name="typeId" style={{ width: '100%' }} className="d-block_choose">
+                    <Space
+                      wrap
+                      name="typeId"
+                      style={{ width: "100%" }}
+                      className="d-block_choose"
+                    >
                       <Controller
                         name="typeId"
                         control={control}
                         render={({ field }) => (
-                          <Select status={errors.typeId ? 'error' : ''} defaultValue="choose type" style={{ width: '100%' }} onChange={(value) => field.onChange(value)} options={optionType} />
+                          <Select
+                            status={errors.typeId ? "error" : ""}
+                            defaultValue="choose type"
+                            style={{ width: "100%" }}
+                            onChange={(value) => field.onChange(value)}
+                            options={optionType}
+                          />
                         )}
                       />
                     </Space>
-                    {errors.typeId && <p className="text-xs text-red-600">{errors.typeId.message}</p>}
+                    {errors.typeId && (
+                      <p className="text-xs text-red-600">
+                        {errors.typeId.message}
+                      </p>
+                    )}
                   </div>
                 </div>
                 {/* fetch list user */}
@@ -564,10 +670,10 @@ const Navbar: React.FC = () => {
                       control={control}
                       render={({ field }) => (
                         <Select
-                          status={errors.listUserAsign ? 'error' : ''}
+                          status={errors.listUserAsign ? "error" : ""}
                           mode="multiple"
                           allowClear
-                          style={{ width: '100%' }}
+                          style={{ width: "100%" }}
                           placeholder="Please select"
                           onChange={(value) => field.onChange(value)}
                           options={optionUser}
@@ -575,7 +681,11 @@ const Navbar: React.FC = () => {
                       )}
                     />
                   </Space>
-                  {errors.listUserAsign && <p className="text-xs text-red-600">{errors.listUserAsign.message}</p>}
+                  {errors.listUserAsign && (
+                    <p className="text-xs text-red-600">
+                      {errors.listUserAsign.message}
+                    </p>
+                  )}
                 </div>
                 <div className="w-full mt-3">
                   <p>Time Tracking</p>
@@ -589,19 +699,23 @@ const Navbar: React.FC = () => {
                           <InputNumber
                             {...field}
                             defaultValue={1}
-                            status={errors.originalEstimate ? 'error' : ''}
-                            style={{ width: '100%' }}
+                            status={errors.originalEstimate ? "error" : ""}
+                            style={{ width: "100%" }}
                             name="originalEstimate"
                             min={1}
                             value={originalEstimate}
                             onChange={(value) => {
-                              field.onChange(value)
-                              handleOriginalEstimateChange(value as any)
+                              field.onChange(value);
+                              handleOriginalEstimateChange(value as any);
                             }}
                           />
                         )}
                       />
-                      {errors.originalEstimate && <p className="text-xs text-red-600">{errors.originalEstimate.message}</p>}
+                      {errors.originalEstimate && (
+                        <p className="text-xs text-red-600">
+                          {errors.originalEstimate.message}
+                        </p>
+                      )}
                     </div>
                     <div className="w-5/12 mt-3 ">
                       <p>Hours spent</p>
@@ -612,20 +726,24 @@ const Navbar: React.FC = () => {
                           <InputNumber
                             {...field}
                             defaultValue={1}
-                            status={errors.timeTrackingSpent ? 'error' : ''}
-                            style={{ width: '100%' }}
+                            status={errors.timeTrackingSpent ? "error" : ""}
+                            style={{ width: "100%" }}
                             name="timeTrackingSpent"
                             min={1}
                             max={originalEstimate}
                             value={hoursSpent}
                             onChange={(value) => {
-                              field.onChange(value)
-                              handleHoursChange(value as any)
+                              field.onChange(value);
+                              handleHoursChange(value as any);
                             }}
                           />
                         )}
                       />
-                      {errors.timeTrackingSpent && <p className="text-xs text-red-600">{errors.timeTrackingSpent.message}</p>}
+                      {errors.timeTrackingSpent && (
+                        <p className="text-xs text-red-600">
+                          {errors.timeTrackingSpent.message}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -640,13 +758,17 @@ const Navbar: React.FC = () => {
                           apiKey="vrdoer2sv642y76nwqxuds28hfp3zk5z00ohhlsi2t520aku"
                           value={value}
                           onEditorChange={(content) => {
-                            onChange(content)
+                            onChange(content);
                           }}
                           onBlur={onBlur}
                         />
                       )}
                     />
-                    {errors.description && <p className="text-xs text-red-600">{errors.description.message}</p>}
+                    {errors.description && (
+                      <p className="text-xs text-red-600">
+                        {errors.description.message}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="my-4">
@@ -660,16 +782,35 @@ const Navbar: React.FC = () => {
               </form>
             </Drawer>
           </nav>
-          <div>
-            <Dropdown menu={{ items: DropDownAvatar }} placement="bottomLeft" trigger={['click']}>
-              <Avatar src={user?.avatar} className="hover:shadow-lg hover:scale-105 transition-transform duration-200 ease-in-out cursor-pointer" />
+          <div className="flex items-center">
+            <Dropdown
+              menu={{ items: DropDownAvatar }}
+              placement="bottomLeft"
+              trigger={["click"]}
+            >
+              <Avatar
+                src={user?.avatar}
+                className="hover:shadow-lg hover:scale-105 transition-transform duration-200 ease-in-out cursor-pointer"
+              />
             </Dropdown>
           </div>
         </div>
       </header>
-      <ToastContainer position="top-center" autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="light" />
+      <div class="header-placehoder h-14"></div>
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </div>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;
