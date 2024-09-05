@@ -1,3 +1,5 @@
+
+Bảng phân công Jira Project : https://docs.google.com/spreadsheets/d/1ubcFsiL3ZaEU4Z1p_5hJO7O1lUa6zfKQPAiaOCjrxM8/edit?gid=873983728#gid=873983728
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
