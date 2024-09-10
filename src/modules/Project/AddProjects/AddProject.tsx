@@ -12,7 +12,7 @@ import { toast } from 'react-toastify'
 import { useMutation } from '@tanstack/react-query'
 import { projectApi } from '../../../apis/projects.api'
 import { forEach } from 'lodash'
-import { useListProject } from "../../../hooks/useListProject";
+import { useListProject } from '../../../hooks/useListProject'
 import { useListProjectName } from '../../../hooks/useListProjectsName'
 
 import { PAGE_SIZE } from '../../../constant'
@@ -28,8 +28,8 @@ const ProjectNew = () => {
   const [pageSize, setCurrentPageSize] = useState(PAGE_SIZE)
   const [showAddMembersModal, setShowAddMembersModal] = useState(false)
   const { data } = useListProjectName(currentPage, pageSize)
-  const [nameProject, setNameProject] = useState([]);
-  
+  const [nameProject, setNameProject] = useState([])
+
   // var projectNameList = [];
   // Object.entries(projectListData).forEach(([key, value]) => {
   //   projectNameList.push(value.projectName);
@@ -68,7 +68,7 @@ const ProjectNew = () => {
   const closeModal = () => {
     setShowAddMembersModal(false)
   }
-  
+
   const handleSubmit = () => {
     // projectNameList.forEach((project, index) => {
     //   if(project === formik.values.projectName)
@@ -77,21 +77,18 @@ const ProjectNew = () => {
     //     toast.error(errorMessage)
     //   }
     // });
-    const isDuplicate = Object.values(data).some(value => value.projectName === formik.values.projectName);
+    const isDuplicate = Object.values(data).some((value) => value.projectName === formik.values.projectName)
     if (isDuplicate) {
-      toast("Tên dự án của bạn đã bị trùng, dự án tạo không thành công");
+      toast('Tên dự án của bạn đã bị trùng, dự án tạo không thành công')
     } else {
       dispatch(
         createProjectAuthorizeApi(formik.values, () => {
-          formik.resetForm();
-          setShowAddMembersModal(true);
+          formik.resetForm()
+          setShowAddMembersModal(true)
         })
-      );
-     
-
+      ),
+        toast.success('Tạo dự án thành công')
     }
-    
-   
   }
 
   // useEffect(() => {
@@ -109,7 +106,7 @@ const ProjectNew = () => {
   }
 
   useEffect(() => {}, [showAddMembersModal])
-  useEffect(()=>{},[nameProject])
+  useEffect(() => {}, [nameProject])
   return (
     <div>
       <Navbar></Navbar>

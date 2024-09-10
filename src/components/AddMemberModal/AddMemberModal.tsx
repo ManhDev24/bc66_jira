@@ -6,6 +6,7 @@ import { history } from '../../main'
 import { assignUserToProjectApi, getUsersByProjectIdApi, removeUserFromProjectApi, setProjectErrorNullAction } from '../../redux/slices/project_slices'
 import { getAllUserApi } from '../../redux/slices/user_slice'
 import { PATH } from '../../routes/path'
+import { toast, ToastContainer } from 'react-toastify'
 
 const AddMemberModal = (props) => {
   const { showFooter = true } = props
@@ -92,6 +93,7 @@ const AddMemberModal = (props) => {
         }
       })
     )
+    toast.success('Add member successfully!')
   }
 
   const removeMemberFromProject = (userId) => () => {
