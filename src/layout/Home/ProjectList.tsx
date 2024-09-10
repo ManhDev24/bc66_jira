@@ -30,6 +30,8 @@ import Swal from "sweetalert2";
 import fetcher from "../../apis/fetcher";
 import { getTaskId } from "../../redux/slices/task_slices";
 import { useMediaQuery } from "usehooks-ts";
+import { useAppSelector } from "../../redux/hook";
+import { toast } from "react-toastify";
 // import { forEach } from 'lodash';
 interface Project {
   id: number
@@ -47,6 +49,7 @@ const ProjectList: React.FC = () => {
   const [filteredProject, setFilteredProject] = useState([])
   const { projectList } = useSelector((state: any) => state.projectReducer)
   const [totalItems, setTotalItems] = useState(0)
+  const user = useAppSelector((state:any) => state.user.currentUser)
   const projectRef = useRef([])
   const searchRef = useRef(null)
 
@@ -66,7 +69,7 @@ const ProjectList: React.FC = () => {
   const { data, isLoading, error } = useListProject(currentPage, pageSize)
   const totalPages = data?.totalPages || 0
   const [dataSource, setDataSource] = useState([])
-  const showConfirmDeleteProjectModal = ({ projectName, id: projectId }: any) => {
+  const showConfirmDeleteProjectModal = ({ projectName, id: projectId , creator}: any) => {
     return () => {
       Modal.confirm({
         title: `Are you sure to delete\n${projectName}?`,
@@ -74,15 +77,22 @@ const ProjectList: React.FC = () => {
         zIndex: 1050,
         centered: true,
         onOk: () => {
-          handleDeleteProject(projectId)
+          handleDeleteProject(projectId,creator)
         },
         cancelText: 'Cancel',
       })
     }
   }
-  const handleDeleteProject = (projectId: any) => {
-    dispatch(deleteProjectApi(projectId))
-    showProjectDeletedSuccessfullyModal()
+  const handleDeleteProject = (projectId: any, creator:any) => {
+    if(creator === user)
+    {
+      dispatch(deleteProjectApi(projectId))
+      showProjectDeletedSuccessfullyModal()
+    }
+    else{
+      toast("Bạn không thể xóa project của bạn khác");
+    }
+    
   }
   const showProjectDeletedSuccessfullyModal = () => {
     dispatch(getAllProject())

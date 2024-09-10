@@ -4,8 +4,9 @@
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
-    "skipLibCheck": true,
-
+    "esModuleInterop": true,
+    "skipLibCheck": true,  // Có thể giúp giảm lỗi liên quan đến định nghĩa kiểu của các thư viện
+    "typeRoots": ["node_modules/@types"],
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
