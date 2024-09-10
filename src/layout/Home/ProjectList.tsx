@@ -84,15 +84,15 @@ const ProjectList: React.FC = () => {
     }
   }
   const handleDeleteProject = (projectId: any, creator:any) => {
-    if(creator === user)
+    if(creator.name === user.name)
     {
       dispatch(deleteProjectApi(projectId))
       showProjectDeletedSuccessfullyModal()
+     
     }
     else{
-      toast("Bạn không thể xóa project của bạn khác");
+      toast("Bạn không thể xóa dự án của bạn khác")
     }
-    
   }
   const showProjectDeletedSuccessfullyModal = () => {
     dispatch(getAllProject())
