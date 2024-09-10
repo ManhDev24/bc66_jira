@@ -70,12 +70,19 @@ export const getAllProjectCategoryApi = () => {
 }
 
 export const createProjectAuthorizeApi = (project: any, callback: any) => {
-  return async (dispatch: (arg0: { payload: any; type: 'projectReducer/createProjectAuthorizeAction' }) => void) => {
-    const result = await fetcher.post(`/Project/createProjectAuthorize`, project)
-    const action = createProjectAuthorizeAction(result.data.content)
-    dispatch(action)
-    if (callback) {
-      callback()
+  return async (dispatch: (arg0: { payload: any; type: 'projectReducer/createProjectAuthorizeAction' }) => void) =>
+    {
+    try {
+      const result = await fetcher.post(`/Project/createProjectAuthorize`, project);
+      const action = createProjectAuthorizeAction(result.data.content);
+      dispatch(action);
+      if (callback) {
+        callback();
+      }
+    } catch (error:any) {
+      
+      // Handle error accordingly, e.g., dispatch an error action or show a message
+      
     }
   }
 }

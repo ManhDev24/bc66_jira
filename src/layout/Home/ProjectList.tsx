@@ -47,7 +47,7 @@ const ProjectList: React.FC = () => {
   const navigate = useNavigate()
   type SearchProps = GetProps<typeof Input.Search>
   const [filteredProject, setFilteredProject] = useState([])
-  const { projectList } = useSelector((state: any) => state.projectReducer)
+  // const { projectList } = useSelector((state: any) => state.projectReducer)
   const [totalItems, setTotalItems] = useState(0)
   const user = useAppSelector((state:any) => state.user.currentUser)
   const projectRef = useRef([])
