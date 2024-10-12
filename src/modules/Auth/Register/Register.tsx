@@ -27,9 +27,21 @@ const validationSchema = yup.object().shape({
     .email("Email is invalid")
     .matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Email is invalid")
     .required("Email is required"),
-  password: yup.string().required("Password is required"),
+  password: yup
+    .string()
+    .required("Password is required")
+    .matches(
+      /^(?=.*[!@#$%^&*(),.?":{}|<>])/,
+      "Password must contain at least one special character"
+    ),
   name: yup.string().required("Name is required"),
-  phoneNumber: yup.string().required("Phone number is required"),
+  phoneNumber: yup
+    .string()
+    .matches(
+      /^(0[3|5|7|8|9])+([0-9]{8})$/,
+      "Phone number is not valid for Vietnam"
+    )
+    .required("Phone number is required"),
 });
 
 const Register = () => {
