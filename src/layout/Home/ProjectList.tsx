@@ -363,7 +363,7 @@ const ProjectList: React.FC = () => {
           Create project
         </Button>
       </div>
-      <div>
+      <div className="mb-4">
         <Input allowClear suffix={<SearchOutlined />} className="w-48 rounded" onChange={handleSearchProject} ref={searchRef} />
       </div>
       <div>
