@@ -1,4 +1,4 @@
-import { Avatar, Button, Col, Input, Row } from "antd";
+import { Avatar, Button, Col, Input, Row, Spin } from "antd";
 import Navbar from "../Home/Navbar";
 import { useAppDispatch, useAppSelector } from "../../redux/hook";
 import { Controller, useForm } from "react-hook-form";
@@ -88,7 +88,11 @@ const Profile = () => {
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}`;
   };
 
-  const { mutate: handleEditUser } = useMutation({
+  const {
+    mutate: handleEditUser,
+    isPending: isPendingHandleEditUser,
+    isError: isErrorHandleEditUser,
+  } = useMutation({
     mutationFn: (payload: FormValues) => userAPI.editUser(payload as any),
     onSuccess: (_, variables) => {
       toast.success("Profile updated successfully!");
@@ -107,7 +111,20 @@ const Profile = () => {
       toast.error(errorMessage);
     },
   });
-
+  if (isPendingHandleEditUser) {
+    return (
+      <Spin tip="Loading" size="small">
+        Loading
+      </Spin>
+    );
+  }
+  if (isErrorHandleEditUser) {
+    return (
+      <div>
+        <h1>Error</h1>
+      </div>
+    );
+  }
   const onCancel = () => {
     reset({
       userId: user?.id || "",
